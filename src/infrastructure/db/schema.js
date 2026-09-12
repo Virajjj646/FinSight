@@ -1,5 +1,6 @@
 import { pgTable, uuid, varchar, timestamp, unique , bigint, text, integer} from "drizzle-orm/pg-core";
 import { time } from "drizzle-orm/singlestore-core";
+import { quotelessJson } from "zod/v3";
 
 export const tenants = pgTable("tenants",{
   id:uuid("id").defaultRandom().primaryKey(),
@@ -46,9 +47,41 @@ export const journalEntries = pgTable("journal_entries",{
 });
 
 export const entryLines = pgTable("entry_lines", {
-  id:uuid("key").defaultRandom().primaryKey(),
+  id:uuid("id").defaultRandom().primaryKey(),
   entryId: uuid("entry_id").notNull().references(() => journalEntries.id),
   accountId : uuid("account_id").notNull().references(() => accounts.id),
   amountMinor: bigint("amount_minor", { mode : "bigint" }).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull()
+});
+
+export const invoices = pgTable("invoices",{
+  id: uuid("id").defaultRandom().primaryKey(),
+  tenantId: uuid("tenant_id").notNull().references(() => tenants.id),
+  invoiceNumber: ("invoice_number", { length: 50 }).notNull(),
+  customerName: ("customer_name", { length: 150 }).notNull(),
+  status: varchar("status", { length: 30 }).notNull().default("DRAFT"),
+  currency: varchar("currency", { length: 3 }).notNull(),
+  issueDate: timestamp("issue_date"),
+  dueDate: timestamp("due_date"),
+  totalAmountMinor: bigint("total_amount_minor",{ mode: "bigint"}).notNull().default(0n),
+  createdAt: timestamp("created_at").defaultNow().notNull(),
+  updtedAt: timestamp("updated_at").defaultNow().notNull()
+});
+
+export const invoiceItems = pgTable("invoice_items", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  invoiceId: uuid("invoice_id").notNull().references(() => invoices.id),
+  description: varchar("description" , { length: 255 }).notNull(),
+  quantity: integer("quantity").notNull(),
+  unitPriceMinor: bigint("unit_price_minor",{ mode: "bigint" }).notNull(),
+  createdAt: timestamp("created_at").defaultNow().notNull()
+});
+
+export const invoicePayments = pgTable("invoice_payments",{
+  id:uuid("id").defaultRandom.primaryKey(),
+  invoiceId: uuid("invoice_id").notNull().references(()=> invoices.id),
+  amountMinor: ("amount_minor" , { mode: "bigint" }).notNull(),
+  paidAt: timestamp("paid_at").notNull(),
+  journalEntryId: uuid("journal_entry_id").references(()=>journalEntries.id),
   createdAt: timestamp("created_at").defaultNow().notNull()
 });

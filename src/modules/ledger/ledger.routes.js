@@ -1,7 +1,7 @@
 import { Router } from "express";
-import { creatwJournalEntryController } from "./ledger.controller.js";
+import { createJournalEntryController } from "./ledger.controller.js";
 
 const router = Router();
 
-router.post("/entries",creatwJournalEntryController);
+router.post("/entries",createJournalEntryController);
 export default router;
