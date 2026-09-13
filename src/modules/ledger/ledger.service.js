@@ -3,7 +3,7 @@ import { journalEntries, entryLines, accounts } from "../../infrastructure/db/sc
 import{ eq, and, inArray } from "drizzle-orm";
 
 export async function createJournalEntry({tenantId,idempotencyKey,data}){
-    const{description,occuredAt,lines} = data;
+    const{description, occurredAt,lines} = data;
 
     //Verify: Entry balances
     const total = lines.reduce((sum,line) => sum + line.amountMinor, 0n);
@@ -30,7 +30,7 @@ export async function createJournalEntry({tenantId,idempotencyKey,data}){
             //Create Entry
             const[entry] = await tx
                 .insert(journalEntries)
-                .values({tenantId,description,occuredAt,idempotencyKey})
+                .values({tenantId,description,occurredAt,idempotencyKey})
                 .returning();
             
             //Creat Entry lines
