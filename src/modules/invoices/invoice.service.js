@@ -1,6 +1,6 @@
 import { db } from "../../infrastructure/db/index.js";
-import { invoices, invoiceItems , invoicePayments } from "../../infrastructure/db/schema.js";
-import { eq } from "drizzle-orm";
+import { invoices, invoiceItems , invoicePayments, invoiceStatusHistory } from "../../infrastructure/db/schema.js";
+import { and, eq, inArray , lt } from "drizzle-orm";
 import { canTransition  } from "./invoice.state.js";
 import { createJournalEntryTx } from "../ledger/ledger.service.js";
 import crypto from "crypto";
@@ -162,5 +162,44 @@ export async function voidInvoice(invoiceId){
         });
 
         return updatedInvoice;
+    });
+}
+
+export async function markOverdueInvoices(){
+    const now = new Date();
+    return await db.transaction(async (tx) => {
+        const overdueCandidates = await tx
+        .select().from(invoices)
+        .where(and(
+            inArray(invoices.status, ["ISSUED","PARTIALLY_PAID"]),
+            lt(invoices.dueDate,now)
+        ));
+
+        const updatedInvoices = [];
+        for(const invoice of overdueCandidates){
+            const[updatedInvoice] = await tx
+                .update(invoices)
+                .set({status: "OVERDUE", updtedAt: now})
+                .where(
+                    and(
+                        eq(invoices.id,invoice.id),
+                        inArray(invoice.status, ["ISSUED","PARTIALLY_PAID"])
+                    )
+                )
+                .returning();
+            
+            if(!updatedInvoice) continue;
+
+            await tx
+                .insert(invoiceStatusHistory)
+                .values({
+                    invoiceId: invoice.id,
+                    fromStatus: invoice.status,
+                    toStatus: "OVERDUE",
+                    reason: "Invoice due date passed"
+                });
+            updatedInvoices.push(updatedInvoice);
+        }
+        return updatedInvoices;
     });
 }
