@@ -1,0 +1,1 @@
+ALTER TABLE "tenants" ALTER COLUMN "created_at" SET DEFAULT now();
