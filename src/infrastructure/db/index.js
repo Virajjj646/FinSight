@@ -1,14 +1,10 @@
 import "dotenv/config";
 
-import { neon } from "@neondatabase/serverless";
-import { drizzle } from "drizzle-orm/neon-http";
+import { Pool, neonConfig } from "@neondatabase/serverless";
+import { drizzle } from "drizzle-orm/neon-serverless";
+import ws from "ws";
 
-const sql = neon(process.env.DATABASE_URL);
-export const db = drizzle(sql);
+neonConfig.webSocketConstructor = ws;
 
-export async function testDatabaseConnection() {
-  const result = await sql`SELECT 1`;
-
-  console.log("DATABASE CONNECTED:", result);
-}
-
+const pool = new Pool({connectionString: process.env.DATABASE_URL});
+export const db = drizzle({client: pool});

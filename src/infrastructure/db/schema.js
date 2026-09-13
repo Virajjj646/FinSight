@@ -5,7 +5,7 @@ import { quotelessJson } from "zod/v3";
 export const tenants = pgTable("tenants",{
   id:uuid("id").defaultRandom().primaryKey(),
   name:varchar("name", { length: 150}).notNull(),
-  createdAt: timestamp("created_at").default().notNull()
+  createdAt: timestamp("created_at").defaultNow().notNull()
 });
 
 export const users = pgTable("users", {
@@ -40,7 +40,7 @@ export const journalEntries = pgTable("journal_entries",{
   id:uuid("id").defaultRandom().primaryKey(),
   tenantId: uuid("tenant_id").notNull().references(() => tenants.id),
   description: text("description").notNull(),
-  occuredAt: timestamp("occured_at").notNull(),
+  occurredAt: timestamp("occured_at").notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   idempotencyKey: varchar("idempotency_key", { length: 255 }).notNull().unique(),
   reversedByEntryId: uuid("reversed_by_entry_id")
@@ -57,13 +57,13 @@ export const entryLines = pgTable("entry_lines", {
 export const invoices = pgTable("invoices",{
   id: uuid("id").defaultRandom().primaryKey(),
   tenantId: uuid("tenant_id").notNull().references(() => tenants.id),
-  invoiceNumber: ("invoice_number", { length: 50 }).notNull(),
-  customerName: ("customer_name", { length: 150 }).notNull(),
+  invoiceNumber:  varchar("invoice_number", { length: 50 }).notNull(),
+  customerName: varchar("customer_name", { length: 150 }).notNull(),
   status: varchar("status", { length: 30 }).notNull().default("DRAFT"),
   currency: varchar("currency", { length: 3 }).notNull(),
   issueDate: timestamp("issue_date"),
   dueDate: timestamp("due_date"),
-  totalAmountMinor: bigint("total_amount_minor",{ mode: "bigint"}).notNull().default(0n),
+  totalAmountMinor: bigint("total_amount_minor",{ mode: "bigint"}).notNull().default("0"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
   updtedAt: timestamp("updated_at").defaultNow().notNull()
 });
@@ -78,9 +78,9 @@ export const invoiceItems = pgTable("invoice_items", {
 });
 
 export const invoicePayments = pgTable("invoice_payments",{
-  id:uuid("id").defaultRandom.primaryKey(),
+  id:uuid("id").defaultRandom().primaryKey(),
   invoiceId: uuid("invoice_id").notNull().references(()=> invoices.id),
-  amountMinor: ("amount_minor" , { mode: "bigint" }).notNull(),
+  amountMinor: bigint("amount_minor" , { mode: "bigint" }).notNull(),
   paidAt: timestamp("paid_at").notNull(),
   journalEntryId: uuid("journal_entry_id").references(()=>journalEntries.id),
   createdAt: timestamp("created_at").defaultNow().notNull()

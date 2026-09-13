@@ -9,10 +9,12 @@
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.0.0",
+    "bufferutil": "^4.1.0",
     "dotenv": "^17.0.0",
     "drizzle-orm": "^0.44.0",
     "express": "^5.1.0",
     "pg": "^8.23.0",
+    "ws": "^8.21.3",
     "zod": "^4.0.0"
   },
   "devDependencies": {
