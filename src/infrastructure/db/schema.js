@@ -85,3 +85,12 @@ export const invoicePayments = pgTable("invoice_payments",{
   journalEntryId: uuid("journal_entry_id").references(()=>journalEntries.id),
   createdAt: timestamp("created_at").defaultNow().notNull()
 });
+
+export const invoiceStatusHistory = pgTable("invoice_status_history", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  invoiceId: uuid("invoice_id").notNull().references(()=>invoices.id),
+  fromStatus: varchar("from_status", { length: 30 }),
+  toStatus: varchar("to_status", { length: 30 }).notNull(),
+  changedAt: timestamp("changed_at").defaultNow().notNull(),
+  reason: text("reason")
+});
