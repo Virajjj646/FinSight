@@ -1,7 +1,6 @@
 import { z } from "zod";
 
 export const createInvoiceSchema = z.object({
-    tenantId: z.string().uuid(),
     customerName: z.string().min(1).max(150),
     currency: z.string().length(3).toUpperCase(),
     dueDate: z.coerce.date(),

@@ -1,13 +1,17 @@
+import { env } from "./config/env.js";
 import express from "express";
-import "dotenv/config";
 import ledgerRoutes from "./modules/ledger/ledger.routes.js";
 import invoiceRoutes from "./modules/invoices/invoice.routes.js";
+import authRoutes from "./modules/auth/auth.routes.js";
+import { errorHandler } from "./middleware/errorHandler.js";
+import { AppError } from "./lib/AppError.js";
 
 
 const app = express();
 
 app.use(express.json());
 
+app.use("/api/auth", authRoutes);
 app.use("/api/ledger", ledgerRoutes);
 app.use("/api/invoices", invoiceRoutes);
 
@@ -18,9 +22,13 @@ app.get("/health", (req, res) => {
   });
 });
 
-const PORT = process.env.PORT || 3000;
+app.use((req, res, next) => {
+  next(new AppError("Not found", 404, "NOT_FOUND"));
+});
 
-app.listen(PORT, () => {
-  console.log(`FinSight API running on port ${PORT}`);
+app.use(errorHandler);
+
+app.listen(env.PORT, () => {
+  console.log(`FinSight API running on port ${env.PORT}`);
 });
 

@@ -6,7 +6,7 @@ export async function createJournalEntryController(req, res, next){
 
         const data = createJournalEntrySchema.parse(req.body);
         const result = await createJournalEntry({
-            tenantId: req.body.tenantId,
+            tenantId: req.auth.tenantId,
             idempotencyKey: req.header("Idempotency-Key"),
             data
         });

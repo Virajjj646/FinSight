@@ -5,3 +5,4 @@ node_modules/
 dist/
 coverage/
 /test
+REMEDIATION_PLAN.md

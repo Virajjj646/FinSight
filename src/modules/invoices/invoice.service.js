@@ -3,10 +3,11 @@ import { invoices, invoiceItems , invoicePayments, invoiceStatusHistory } from "
 import { and, eq, inArray , lt } from "drizzle-orm";
 import { canTransition  } from "./invoice.state.js";
 import { createJournalEntryTx } from "../ledger/ledger.service.js";
+import { AppError } from "../../lib/AppError.js";
 import crypto from "crypto";
 
 export async function createInvoice({tenantId, customerName, currency, dueDate, items}){
-    if(!items||items.length==0) throw new Error("Invoice must have atleast one item");
+    if(!items||items.length==0) throw new AppError("Invoice must have atleast one item", 422, "INVALID_INVOICE");
 
     //Calculate Total
     const totalAmountMinor = items.reduce((total, item) => {
@@ -41,16 +42,16 @@ export async function createInvoice({tenantId, customerName, currency, dueDate, 
     })
 }
 
-export async function issueInvoice(invoiceId) {
+export async function issueInvoice(invoiceId, tenantId) {
     return await db.transaction(async(tx) => {
-        const [invoice] = await tx.select().from(invoices).where(eq(invoices.id,invoiceId)).limit(1);
-        if(!invoice) throw new Error("Invoice not found");
-        if(!canTransition(invoice.status, "ISSUED")) throw new Error(`Cannot transition invoice from ${invoice.status} to ISSUED`);
-    
+        const [invoice] = await tx.select().from(invoices).where(and(eq(invoices.id,invoiceId), eq(invoices.tenantId,tenantId))).limit(1);
+        if(!invoice) throw new AppError("Invoice not found", 404, "NOT_FOUND");
+        if(!canTransition(invoice.status, "ISSUED")) throw new AppError(`Cannot transition invoice from ${invoice.status} to ISSUED`, 422, "ILLEGAL_TRANSITION");
+
         const[updatedInvoice] = await tx
             .update(invoices)
             .set({status:"ISSUED", issueDate: new Date(), updatedAt: new Date() })
-            .where(eq(invoices.id,invoiceId))
+            .where(and(eq(invoices.id,invoiceId), eq(invoices.tenantId,tenantId)))
             .returning();
 
         await tx.insert(invoiceStatusHistory).values({
@@ -64,28 +65,28 @@ export async function issueInvoice(invoiceId) {
 }
 
 export async function createInvoicePayment({
-    invoiceId, amountMinor, paidAt, bankAccountId, accountReceivableAccountId
+    invoiceId, tenantId, amountMinor, paidAt, bankAccountId, accountReceivableAccountId
 }){
     return await db.transaction(async (tx) => {
 
         //Find invoice
         const[invoice] = await tx
-            .select().from(invoices).where(eq(invoices.id,invoiceId)).limit(1);
-        if(!invoice) throw new Error("Invoice not found");
+            .select().from(invoices).where(and(eq(invoices.id,invoiceId), eq(invoices.tenantId,tenantId))).limit(1);
+        if(!invoice) throw new AppError("Invoice not found", 404, "NOT_FOUND");
 
-        if(invoice.status == "PAID" || invoice.status == "VOID") throw new Error(`Cannot make payment on ${invoice.status} invoice`);
-        
+        if(invoice.status == "PAID" || invoice.status == "VOID") throw new AppError(`Cannot make payment on ${invoice.status} invoice`, 422, "ILLEGAL_TRANSITION");
+
         //Find paid amount and calclate remaining amount
         const payments = await tx
             .select().from(invoicePayments).where(eq(invoicePayments.invoiceId, invoiceId));
-        
+
         const paidAmountMinor = payments.reduce(
             (total, payment) => total+payment.amountMinor,0n
         );
 
         const remainingAmountMinor = invoice.totalAmountMinor - paidAmountMinor;
 
-        if(amountMinor > remainingAmountMinor) throw new Error("Payment exceeds remaining invoice amount");
+        if(amountMinor > remainingAmountMinor) throw new AppError("Payment exceeds remaining invoice amount", 422, "PAYMENT_EXCEEDS_BALANCE");
 
         //Create ledger entry
         const journalEntry = await createJournalEntryTx({
@@ -132,25 +133,25 @@ export async function createInvoicePayment({
         const [updatedInvoice] = await tx
             .update(invoices)
             .set({status: newStatus, updatedAt: new Date()})
-            .where(eq(invoices.id, invoiceId))
+            .where(and(eq(invoices.id, invoiceId), eq(invoices.tenantId, tenantId)))
             .returning();
-        
+
         return{ payment, invoice: updatedInvoice, journalEntry};
     });
 }
 
-export async function voidInvoice(invoiceId){
+export async function voidInvoice(invoiceId, tenantId){
     return await db.transaction(async (tx) =>{
         const [invoice] = await tx
-            .select().from(invoices).where(eq(invoices.id,invoiceId)).limit(1);
+            .select().from(invoices).where(and(eq(invoices.id,invoiceId), eq(invoices.tenantId,tenantId))).limit(1);
 
-        if(!invoice) throw new Error("Invoice not found");
-        if(!canTransition(invoice.status,"VOID")) throw new Error(`Cannot transition invoice from ${invoice.status} to VOID`);
+        if(!invoice) throw new AppError("Invoice not found", 404, "NOT_FOUND");
+        if(!canTransition(invoice.status,"VOID")) throw new AppError(`Cannot transition invoice from ${invoice.status} to VOID`, 422, "ILLEGAL_TRANSITION");
 
         const [updatedInvoice] = await tx
             .update(invoices)
             .set({status: "VOID", updatedAt: new Date()})
-            .where(eq(invoices.id,invoiceId))
+            .where(and(eq(invoices.id,invoiceId), eq(invoices.tenantId,tenantId)))
             .returning();
         
         await tx.insert(invoiceStatusHistory).values({

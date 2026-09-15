@@ -60,7 +60,6 @@ Read this whole file before making any change.
    - Remove `@neondatabase/serverless`, `ws`, and `bufferutil` from dependencies.
    - Keep pointing at the same Neon connection string.
 
-**Commit, then stop and report.**
 
 ---
 
@@ -83,7 +82,6 @@ failing test for each first.
    `inArray(invoice.status, [...])` — a plain string where a column is
    required. Should be `invoices.status`.
 
-**Commit, then stop and report.**
 
 ---
 
@@ -140,7 +138,6 @@ effectively empty, so destructive renames are acceptable.
    Add a test that attempts a direct unbalanced insert via raw SQL and asserts
    the commit fails.
 
-**Commit, then stop and report.**
 
 ---
 
@@ -197,7 +194,6 @@ New dependencies permitted here, and only here: `bcrypt` and `jsonwebtoken`.
    a generic body. Replace every `throw new Error(...)` in the services with an
    `AppError` carrying the right status. Add a 404 handler for unmatched routes.
 
-**Commit, then stop and report.**
 
 ---
 
@@ -262,7 +258,6 @@ This is the phase that produces the project's headline artifact. Do not rush it.
    strings on the way out (already done). Add a test with a value above
    `Number.MAX_SAFE_INTEGER` that round-trips exactly.
 
-**Commit, then stop and report.**
 
 ---
 
@@ -302,8 +297,6 @@ anyone.
    close the pg pool, close the BullMQ worker and the Redis connection, exit.
    Both `app.js` and `worker.js`.
 
-**Commit, then stop and report.**
-
 ---
 
 ## Phase 6 — Reconsider the queue
@@ -342,8 +335,6 @@ imports it.
 - No `console.log` in `src/`.
 - Boot fails loudly and immediately on a missing environment variable.
 - README documents setup, the endpoint list, and the concurrency test results.
-- `git log` reads as a sequence of explained fixes, not one "fix everything"
-  commit.
 
 ## Out of scope
 

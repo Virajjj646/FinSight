@@ -1,3 +1,4 @@
+import "./config/env.js";
 import { setupInvoiceSchedular } from "./infrastructure/queue/invoice.schedular.js";
 import "./infrastructure/queue/invoice.worker.js";
 

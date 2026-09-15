@@ -1,6 +1,7 @@
 import { db } from "../../infrastructure/db/index.js";
 import { journalEntries, entryLines, accounts } from "../../infrastructure/db/schema.js";
 import{ eq, and, inArray } from "drizzle-orm";
+import { AppError } from "../../lib/AppError.js";
 
 export async function createJournalEntry({tenantId,idempotencyKey,data}){
     return await db.transaction(async(tx)=>{
@@ -15,10 +16,14 @@ export async function createJournalEntryTx({tx,tenantId,idempotencyKey,data}){
 
     //Verify: Entry balances
     const total = lines.reduce((sum,line) => sum + line.amountMinor, 0n);
-    if(total!==0n) throw new Error("Journal entry must balance to zero");
+    if(total!==0n) throw new AppError("Journal entry must balance to zero", 422, "UNBALANCED_ENTRY");
 
-    //Check idempotency
-    const existing = await tx.select().from(journalEntries).where(eq(journalEntries.idempotencyKey,idempotencyKey)).limit(1);
+    //Check idempotency (scoped to tenant so different tenants can reuse the same key)
+    const existing = await tx
+        .select()
+        .from(journalEntries)
+        .where(and(eq(journalEntries.tenantId,tenantId), eq(journalEntries.idempotencyKey,idempotencyKey)))
+        .limit(1);
     if(existing.length>0) return existing[0];
 
     //Verify: All acounts belongs to tenant
@@ -29,9 +34,9 @@ export async function createJournalEntryTx({tx,tenantId,idempotencyKey,data}){
         .where(and(
             eq(accounts.tenantId,tenantId), inArray(accounts.id,accountIds)
         ));
-        
+
         if(tenantAccounts.length !== accountIds.length){
-            throw new Error("One or more accounts are invalid");
+            throw new AppError("One or more accounts are invalid", 422, "INVALID_ACCOUNT");
         }
 
             //Create Entry
