@@ -36,6 +36,34 @@
       "when": 1789311035313,
       "tag": "0004_certain_bruce_banner",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1789498728806,
+      "tag": "0005_phase2_schema_correctness_part1",
+      "breakpoints": true
+    },
+    {
+      "idx": 6,
+      "version": "7",
+      "when": 1789498747378,
+      "tag": "0006_phase2_schema_correctness_part2",
+      "breakpoints": true
+    },
+    {
+      "idx": 7,
+      "version": "7",
+      "when": 1789498768774,
+      "tag": "0007_phase2_entry_lines_zero_sum_trigger",
+      "breakpoints": true
+    },
+    {
+      "idx": 8,
+      "version": "7",
+      "when": 1789498987269,
+      "tag": "0008_phase2_occurred_at_timestamptz",
+      "breakpoints": true
     }
   ]
 }

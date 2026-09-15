@@ -47,6 +47,7 @@ export async function createJournalEntryTx({tx,tenantId,idempotencyKey,data}){
                 lines.map((line)=> ({
                     entryId : entry.id,
                     accountId: line.accountId,
+                    tenantId,
                     amountMinor: line.amountMinor
                 }))
             );

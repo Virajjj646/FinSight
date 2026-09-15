@@ -1,0 +1,1 @@
+CREATE INDEX "journal_entries_tenant_id_occurred_at_idx" ON "journal_entries" USING btree ("tenant_id","occurred_at");
