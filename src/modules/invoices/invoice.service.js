@@ -49,7 +49,7 @@ export async function issueInvoice(invoiceId) {
     
         const[updatedInvoice] = await tx
             .update(invoices)
-            .set({status:"ISSUED", issueDate: new Date(), updtedAt: new Date() })
+            .set({status:"ISSUED", issueDate: new Date(), updatedAt: new Date() })
             .where(eq(invoices.id,invoiceId))
             .returning();
 
@@ -142,14 +142,14 @@ export async function createInvoicePayment({
 export async function voidInvoice(invoiceId){
     return await db.transaction(async (tx) =>{
         const [invoice] = await tx
-            .select().from(invoices).where(eq(invoiceId,invoices.id)).limit(1);
-        
+            .select().from(invoices).where(eq(invoices.id,invoiceId)).limit(1);
+
         if(!invoice) throw new Error("Invoice not found");
         if(!canTransition(invoice.status,"VOID")) throw new Error(`Cannot transition invoice from ${invoice.status} to VOID`);
 
         const [updatedInvoice] = await tx
             .update(invoices)
-            .set({status: "VOID", updtedAt: new Date()})
+            .set({status: "VOID", updatedAt: new Date()})
             .where(eq(invoices.id,invoiceId))
             .returning();
         
@@ -178,11 +178,11 @@ export async function markOverdueInvoices(){
         for(const invoice of overdueCandidates){
             const[updatedInvoice] = await tx
                 .update(invoices)
-                .set({status: "OVERDUE", updtedAt: now})
+                .set({status: "OVERDUE", updatedAt: now})
                 .where(
                     and(
                         eq(invoices.id,invoice.id),
-                        inArray(invoice.status, ["ISSUED","PARTIALLY_PAID"])
+                        inArray(invoices.status, ["ISSUED","PARTIALLY_PAID"])
                     )
                 )
                 .returning();

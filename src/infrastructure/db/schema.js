@@ -63,7 +63,7 @@ export const invoices = pgTable("invoices",{
   dueDate: timestamp("due_date"),
   totalAmountMinor: bigint("total_amount_minor",{ mode: "bigint"}).notNull().default("0"),
   createdAt: timestamp("created_at").defaultNow().notNull(),
-  updtedAt: timestamp("updated_at").defaultNow().notNull()
+  updatedAt: timestamp("updated_at").defaultNow().notNull()
 });
 
 export const invoiceItems = pgTable("invoice_items", {
