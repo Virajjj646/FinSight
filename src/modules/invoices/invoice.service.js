@@ -4,7 +4,6 @@ import { and, eq, inArray , lt } from "drizzle-orm";
 import { canTransition  } from "./invoice.state.js";
 import { createJournalEntryTx } from "../ledger/ledger.service.js";
 import crypto from "crypto";
-import { any } from "zod";
 
 export async function createInvoice({tenantId, customerName, currency, dueDate, items}){
     if(!items||items.length==0) throw new Error("Invoice must have atleast one item");

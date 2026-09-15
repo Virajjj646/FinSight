@@ -1,6 +1,4 @@
 import { pgTable, uuid, varchar, timestamp, unique , bigint, text, integer} from "drizzle-orm/pg-core";
-import { time } from "drizzle-orm/singlestore-core";
-import { quotelessJson } from "zod/v3";
 
 export const tenants = pgTable("tenants",{
   id:uuid("id").defaultRandom().primaryKey(),
