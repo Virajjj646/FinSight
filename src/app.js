@@ -3,6 +3,7 @@ import express from "express";
 import ledgerRoutes from "./modules/ledger/ledger.routes.js";
 import invoiceRoutes from "./modules/invoices/invoice.routes.js";
 import authRoutes from "./modules/auth/auth.routes.js";
+import accountRoutes from "./modules/accounts/accounts.routes.js";
 import { errorHandler } from "./middleware/errorHandler.js";
 import { AppError } from "./lib/AppError.js";
 
@@ -14,6 +15,7 @@ app.use(express.json());
 app.use("/api/auth", authRoutes);
 app.use("/api/ledger", ledgerRoutes);
 app.use("/api/invoices", invoiceRoutes);
+app.use("/api/accounts", accountRoutes);
 
 app.get("/health", (req, res) => {
   res.json({

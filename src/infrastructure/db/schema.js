@@ -38,6 +38,7 @@ export const accounts = pgTable("accounts",{
 },
 (table) => [
   index("accounts_tenant_id_idx").on(table.tenantId),
+  unique("accounts_tenant_id_name_unique").on(table.tenantId, table.name),
   check("accounts_type_check", sql`${table.type} IN ('ASSET','LIABILITY','EQUITY','REVENUE','EXPENSE')`),
   check("accounts_currency_check", sql`${table.currency} ~ '^[A-Z]{3}$'`),
 ]);

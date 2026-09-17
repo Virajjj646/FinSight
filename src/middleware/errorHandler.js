@@ -1,3 +1,4 @@
+import { randomUUID } from "crypto";
 import { ZodError } from "zod";
 import { AppError } from "../lib/AppError.js";
 
@@ -21,14 +22,30 @@ export function errorHandler(error, req, res, next) {
     });
   }
 
-  if (error.code === "23505") {
+  const pgCode = error.code ?? error.cause?.code ?? error.cause?.cause?.code;
+  if (pgCode === "23505") {
     return res.status(409).json({
-      error: { code: "CONFLICT", message: "Resource already exists" },
+      error: { code: "ALREADY_EXISTS", message: "Resource already exists" },
     });
   }
 
-  console.error(error.stack);
+  const requestId = randomUUID();
+  console.error({
+    requestId,
+    message: error.message,
+    code: error.code,
+    detail: error.detail,
+    column: error.column,
+    constraint: error.constraint,
+    table: error.table,
+    causeCode: error.cause?.code,
+    stack: error.stack,
+  });
   return res.status(500).json({
-    error: { code: "INTERNAL_ERROR", message: "Something went wrong" },
+    error: {
+      code: "INTERNAL_ERROR",
+      message: "Something went wrong",
+      requestId,
+    },
   });
 }
