@@ -1,7 +1,8 @@
 import { db } from "../../infrastructure/db/index.js";
 import { journalEntries, entryLines, accounts } from "../../infrastructure/db/schema.js";
-import{ eq, and, inArray } from "drizzle-orm";
+import { eq, and, inArray } from "drizzle-orm";
 import { AppError } from "../../lib/AppError.js";
+import { fingerprint } from "../../lib/idempotency.js";
 
 export async function createJournalEntry({tenantId,idempotencyKey,data}){
     return await db.transaction(async(tx)=>{
@@ -16,47 +17,63 @@ export async function createJournalEntryTx({tx,tenantId,idempotencyKey,data}){
 
     //Verify: Entry balances
     const total = lines.reduce((sum,line) => sum + line.amountMinor, 0n);
-    if(total!==0n) throw new AppError("Journal entry must balance to zero", 422, "UNBALANCED_ENTRY");
+    if(total!==0n) throw new AppError("Journal entry must balance to zero", 422);
 
-    //Check idempotency (scoped to tenant so different tenants can reuse the same key)
-    const existing = await tx
-        .select()
-        .from(journalEntries)
-        .where(and(eq(journalEntries.tenantId,tenantId), eq(journalEntries.idempotencyKey,idempotencyKey)))
-        .limit(1);
-    if(existing.length>0) return existing[0];
+    const requestFingerprint = fingerprint(data);
 
-    //Verify: All acounts belongs to tenant
-    const accountIds = lines.map((line)=> line.accountId);
+    const[entry] = await tx
+        .insert(journalEntries)
+        .values({tenantId, description, occurredAt, idempotencyKey, requestFingerprint})
+        .onConflictDoNothing({target: [journalEntries.tenantId, journalEntries.idempotencyKey]})
+        .returning();
+
+    if(!entry){
+        const[existing] = await tx
+            .select()
+            .from(journalEntries)
+            .where(
+                and(
+                    eq(journalEntries.tenantId, tenantId),
+                    eq(journalEntries.idempotencyKey,idempotencyKey),
+                ),
+            )
+            .limit(1);
+
+        if (existing.requestFingerprint !== requestFingerprint) {
+            throw new AppError(
+            "This Idempotency-Key was already used with a different request body",
+            409,
+            "IDEMPOTENCY_KEY_REUSED",
+            );
+        }
+
+        const existingLines = await tx
+            .select()
+            .from(entryLines)
+            .where(eq(entryLines.entryId, existing.id));
+
+        return { entry: existing, lines: existingLines, replayed: true};
+    }
+
+    const accountsIds = [...new Set(lines.map((line)=> line.accountId))];
     const tenantAccounts = await tx
         .select()
         .from(accounts)
-        .where(and(
-            eq(accounts.tenantId,tenantId), inArray(accounts.id,accountIds)
-        ));
+        .where(and(eq(accounts.tenantId, tenantId), inArray(accounts.id, accountsIds)));
 
-        if(tenantAccounts.length !== accountIds.length){
-            throw new AppError("One or more accounts are invalid", 422, "INVALID_ACCOUNT");
-        }
+    if(tenantAccounts.length != accountsIds.length) throw new AppError("One or more accounts are invalid", 422);
 
-            //Create Entry
-        const[entry] = await tx
-            .insert(journalEntries)
-            .values({tenantId,description,occurredAt,idempotencyKey})
-            .returning();
-            
-            //Creat Entry lines
-        await tx
-            .insert(entryLines)
-            .values(
-                lines.map((line)=> ({
-                    entryId : entry.id,
-                    accountId: line.accountId,
-                    tenantId,
-                    amountMinor: line.amountMinor
-                }))
-            );
-        return entry;
+    const currencies = new Set(tenantAccounts.map((account) => account.currency));
+    if(currencies.size > 1) throw new AppError("All accounts in a journal entry must share one currency", 422);
+
+    const insertedLines = await tx.insert(entryLines).values(
+        lines.map((line) => ({
+            entryId: entry.id,
+            tenantId,
+            accountId: line.accountId,
+            amountMinor: line.amountMinor,
+        })),
+    ).returning();
+
+    return { entry, lines: insertedLines, replayed: false };
 }
-
-

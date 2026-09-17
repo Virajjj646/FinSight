@@ -49,6 +49,7 @@ export const journalEntries = pgTable("journal_entries",{
   occurredAt: timestamp("occurred_at", { withTimezone: true }).notNull(),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   idempotencyKey: varchar("idempotency_key", { length: 255 }).notNull(),
+  requestFingerprint: varchar("request_fingerprint", { length: 64 }).notNull(),
   reversedByEntryId: uuid("reversed_by_entry_id").references(() => journalEntries.id)
 },
 (table) => [
@@ -111,9 +112,13 @@ export const invoicePayments = pgTable("invoice_payments",{
   amountMinor: bigint("amount_minor" , { mode: "bigint" }).notNull(),
   paidAt: timestamp("paid_at", { withTimezone: true }).notNull(),
   journalEntryId: uuid("journal_entry_id").references(()=>journalEntries.id),
-  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull()
+  createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+  tenantId: uuid("tenant_id").notNull().references(() => tenants.id),
+  idempotencyKey: varchar("idempotency_key", { length: 255 }).notNull(),
+  requestFingerprint: varchar("request_fingerprint", { length: 64 }).notNull(),
 },
 (table) => [
+  unique().on(table.tenantId, table.idempotencyKey),
   index("invoice_payments_invoice_id_idx").on(table.invoiceId),
   check("invoice_payments_amount_minor_check", sql`${table.amountMinor} > 0`),
 ]);

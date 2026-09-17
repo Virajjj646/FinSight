@@ -1,6 +1,7 @@
 import { createInvoiceSchema } from "./invoice.schema.js";
 import { createInvoice , issueInvoice, createInvoicePayment, voidInvoice} from "./invoice.service.js";
 import { createInvoicePaymentSchema } from "./invoice.payment.schema.js";
+import { idempotencyKeySchema } from "../../lib/idempotency.js";
 
 export async function createInvoiceController(req,res, next){
     try{
@@ -27,12 +28,14 @@ export async function issueInvoiceController(req,res, next){
 
 export async function createInvoicePaymentController(req, res, next){
     try{
+
+        const idempotencyKey = idempotencyKeySchema.parse(req.header("Idempotency-Key"));
         const data = createInvoicePaymentSchema.parse(req.body);
-        const result = await createInvoicePayment({invoiceId: req.params.id, tenantId: req.auth.tenantId, ...data});
-        res.status(201).json({
-            ...result,
-            payment: { ...result.payment, amountMinor: result.payment.amountMinor.toString() },
-            invoice: { ...result.invoice, totalAmountMinor: result.invoice.totalAmountMinor.toString() }
+        const { payment, invoice, journalEntry, replayed} = await createInvoicePayment({invoiceId: req.params.id, tenantId: req.auth.tenantId, idempotencyKey, ...data});
+        res.status(replayed? 200 : 201).json({
+            payment: { ...payment, amountMinor: payment.amountMinor.toString() },
+            invoice: { ...invoice, totalAmountMinor: invoice.totalAmountMinor.toString() },
+            journalEntry
         });
     }catch(error){
         next(error);

@@ -64,6 +64,20 @@
       "when": 1789498987269,
       "tag": "0008_phase2_occurred_at_timestamptz",
       "breakpoints": true
+    },
+    {
+      "idx": 9,
+      "version": "7",
+      "when": 1789564570022,
+      "tag": "0009_colossal_starhawk",
+      "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1789641875294,
+      "tag": "0010_spooky_argent",
+      "breakpoints": true
     }
   ]
 }
