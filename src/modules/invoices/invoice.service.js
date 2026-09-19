@@ -9,7 +9,7 @@ import { fingerprint } from "../../lib/idempotency.js";
 import { decodeCursor, encodeCursor } from "../../lib/cursor.js";
 
 export async function createInvoice({tenantId, customerName, currency, dueDate, items}){
-    if(!items||items.length==0) throw new AppError("Invoice must have atleast one item", 422, "INVALID_INVOICE");
+    if(!items||items.length===0) throw new AppError("Invoice must have atleast one item", 422, "INVALID_INVOICE");
 
     //Calculate Total
     const totalAmountMinor = items.reduce((total, item) => {
@@ -19,12 +19,11 @@ export async function createInvoice({tenantId, customerName, currency, dueDate, 
         return total + quantity*unitPriceMinor;
     },0n);
 
-    const invoiceNumber = `INV-${crypto.randomUUID()}`;
-
     return await db.transaction(async (tx) => {
+        const { sequence, invoiceNumber} = await allocateInvoiceNumber(tx, tenantId);
         const[invoice] = await tx
             .insert(invoices)
-            .values({tenantId, invoiceNumber, customerName, currency, dueDate: new Date(dueDate), totalAmountMinor})
+            .values({tenantId, invoiceNumber, sequenceNumber: sequence, customerName, currency, dueDate: new Date(dueDate), totalAmountMinor})
             .returning();
 
         await tx.insert(invoiceItems).values(
@@ -342,4 +341,21 @@ export async function getInvoice({ tenantId, invoiceId}){
         payments: payments.map((p) => ({ ...p, amountMinor: p.amountMinor.toString()})),
         statusHistory: history,
     };
+}
+
+async function allocateInvoiceNumber(tx, tenantId) {
+  const { rows } = await tx.execute(sql`
+    INSERT INTO invoice_sequences (tenant_id, last_value)
+    VALUES (${tenantId}, 1)
+    ON CONFLICT (tenant_id)
+    DO UPDATE SET last_value = invoice_sequences.last_value + 1,
+                  updated_at = now()
+    RETURNING last_value
+  `);
+
+  const sequence = BigInt(rows[0].last_value);
+  return {
+    sequence,
+    invoiceNumber: `INV-${String(sequence).padStart(6, "0")}`,
+  };
 }

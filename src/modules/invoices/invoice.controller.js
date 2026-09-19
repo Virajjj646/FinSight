@@ -2,15 +2,13 @@ import { createInvoiceSchema, listInvoicesQuerySchema } from "./invoice.schema.j
 import { createInvoice , issueInvoice, createInvoicePayment, voidInvoice, listInvoices, getInvoice} from "./invoice.service.js";
 import { createInvoicePaymentSchema } from "./invoice.payment.schema.js";
 import { idempotencyKeySchema } from "../../lib/idempotency.js";
-import { serializeEntry } from "../../lib/serialize.js";
+import { serializeInvoice } from "../../lib/serialize.js";
 
 export async function createInvoiceController(req,res, next){
     try{
         const data = createInvoiceSchema.parse(req.body);
         const invoice = await createInvoice({ ...data, tenantId: req.auth.tenantId });
-        res.status(201).json({
-            ...invoice, totalAmountMinor: invoice.totalAmountMinor.toString()
-        });
+        res.status(201).json(serializeInvoice(invoice));
     }catch(error){
         next(error);
     }

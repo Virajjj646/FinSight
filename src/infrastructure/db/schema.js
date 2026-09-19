@@ -135,3 +135,11 @@ export const invoiceStatusHistory = pgTable("invoice_status_history", {
 (table) => [
   index("invoice_status_history_invoice_id_idx").on(table.invoiceId),
 ]);
+
+export const invoiceSequences = pgTable("invoice_sequences", {
+  tenantId: uuid("tenant_id")
+    .primaryKey()
+    .references(() => tenants.id, { onDelete: "cascade" }),
+  lastValue: bigint("last_value", { mode: "bigint" }).notNull().default("0"),
+  updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
+});
