@@ -6,20 +6,15 @@ import authRoutes from "./modules/auth/auth.routes.js";
 import accountRoutes from "./modules/accounts/accounts.routes.js";
 import { errorHandler } from "./middleware/errorHandler.js";
 import { AppError } from "./lib/AppError.js";
+import { requestId } from "./middleware/requestId.js";
+import { requestLogger } from "./middleware/requestLogger.js";
 
 
 const app = express();
 
+app.use(requestId);
 app.use(express.json());
-
-app.use((req, res, next) => {
-  const start = Date.now();
-  res.on("finish", () =>
-    console.log(`${req.method} ${req.originalUrl} ${res.statusCode} ${Date.now() - start}ms`)
-  );
-  next();
-});
-
+app.use(requestLogger);
 app.use("/api/auth", authRoutes);
 app.use("/api/ledger", ledgerRoutes);
 app.use("/api/invoices", invoiceRoutes);

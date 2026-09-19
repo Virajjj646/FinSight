@@ -18,7 +18,7 @@ export async function createJournalEntryTx({tx,tenantId,idempotencyKey,data}){
 
     //Verify: Entry balances
     const total = lines.reduce((sum,line) => sum + line.amountMinor, 0n);
-    if(total!==0n) throw new AppError("Journal entry must balance to zero", 422);
+    if(total!==0n) throw new AppError("Journal entry must balance to zero", 422, "JOURNAL_ENTRY_UNBALANCED");
 
     const requestFingerprint = fingerprint(data);
 
@@ -62,10 +62,10 @@ export async function createJournalEntryTx({tx,tenantId,idempotencyKey,data}){
         .from(accounts)
         .where(and(eq(accounts.tenantId, tenantId), inArray(accounts.id, accountsIds)));
 
-    if(tenantAccounts.length != accountsIds.length) throw new AppError("One or more accounts are invalid", 422);
+    if(tenantAccounts.length != accountsIds.length) throw new AppError("One or more accounts are invalid", 422, "INVALID_ACCOUNT");
 
     const currencies = new Set(tenantAccounts.map((account) => account.currency));
-    if(currencies.size > 1) throw new AppError("All accounts in a journal entry must share one currency", 422);
+    if(currencies.size > 1) throw new AppError("All accounts in a journal entry must share one currency", 422, "CURRENCY_MISMATCH");
 
     const insertedLines = await tx.insert(entryLines).values(
         lines.map((line) => ({

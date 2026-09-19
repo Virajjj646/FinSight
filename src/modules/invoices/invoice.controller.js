@@ -1,7 +1,8 @@
-import { createInvoiceSchema } from "./invoice.schema.js";
-import { createInvoice , issueInvoice, createInvoicePayment, voidInvoice} from "./invoice.service.js";
+import { createInvoiceSchema, listInvoicesQuerySchema } from "./invoice.schema.js";
+import { createInvoice , issueInvoice, createInvoicePayment, voidInvoice, listInvoices, getInvoice} from "./invoice.service.js";
 import { createInvoicePaymentSchema } from "./invoice.payment.schema.js";
 import { idempotencyKeySchema } from "../../lib/idempotency.js";
+import { serializeEntry } from "../../lib/serialize.js";
 
 export async function createInvoiceController(req,res, next){
     try{
@@ -49,4 +50,30 @@ export async function voidInvoiceController(req, res, next){
             ...invoice, totalAmountMinor:invoice.totalAmountMinor.toString()
         });
     }catch(error){next(error);}
+}
+
+export async function listInvoicesController(req, res, next){
+    try{
+        const query = listInvoicesQuerySchema.parse(req.query);
+
+        const{ data, nextCursor } = await listInvoices({
+            tenantId: req.auth.tenantId,
+            ...query
+        });
+
+        res.json({
+            data, nextCursor
+        });
+    }catch(error) { next(error); }
+}
+
+export async function getInvoiceController(req,res,next){
+    try{
+        const invoice = await getInvoice({
+            tenantId: req.auth.tenantId,
+            invoiceId: req.params.id,
+        });
+
+        res.json(invoice);
+    }catch(error) { next(error); }
 }

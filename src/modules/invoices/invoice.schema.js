@@ -12,3 +12,19 @@ export const createInvoiceSchema = z.object({
         })
     ).min(1)
 });
+
+export const INVOICE_STATUSES = [ "DRAFT", "ISSUED", "PARTIALLY_PAID", "PAID", "OVERDUE", "VOID"];
+
+export const listInvoicesQuerySchema = z.object({
+    limit: z.coerce.number().int().min(1).max(100).default(20),
+    cursor: z.string().optional(),
+    status: z
+        .string()
+        .optional()
+        .transform((s) => (s ? s.split(",").map((v) => v.trim().toUpperCase()) : undefined))
+        .refine(
+            (arr) => !arr || arr.every((v) => INVOICE_STATUSES.includes(v)),
+            {message: `status must be one of: ${INVOICE_STATUSES.join(", ")}`}
+        ),
+        dueBefore: z.coerce.date().optional(),
+});
