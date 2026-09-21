@@ -1,6 +1,7 @@
 import jwt from "jsonwebtoken";
 import { env } from "../config/env.js";
 import { AppError } from "../lib/AppError.js";
+import { requestContext } from "../lib/requestContext.js";
 
 export function authenticate(req, res, next) {
   const header = req.header("Authorization");
@@ -13,6 +14,9 @@ export function authenticate(req, res, next) {
   try {
     const payload = jwt.verify(token, env.JWT_SECRET);
     req.auth = { userId: payload.sub, tenantId: payload.tenantId, role: payload.role };
+
+    const ctx = requestContext.getStore();
+    if (ctx) Object.assign(ctx, { tenantId: payload.tenantId, userId: payload.sub})
     next();
   } catch (error) {
     next(new AppError("Invalid or expired token", 401, "UNAUTHENTICATED"));

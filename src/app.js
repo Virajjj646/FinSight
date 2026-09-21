@@ -7,14 +7,15 @@ import accountRoutes from "./modules/accounts/accounts.routes.js";
 import { errorHandler } from "./middleware/errorHandler.js";
 import { AppError } from "./lib/AppError.js";
 import { requestId } from "./middleware/requestId.js";
+import { logger } from "./lib/logger.js";
 import { requestLogger } from "./middleware/requestLogger.js";
 
 
 const app = express();
 
-app.use(requestId);
-app.use(express.json());
 app.use(requestLogger);
+app.use(express.json());
+
 app.use("/api/auth", authRoutes);
 app.use("/api/ledger", ledgerRoutes);
 app.use("/api/invoices", invoiceRoutes);

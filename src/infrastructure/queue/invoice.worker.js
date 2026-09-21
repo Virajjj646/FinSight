@@ -1,15 +1,19 @@
 import { Worker } from "bullmq";
 import { redis } from "../redis/index.js";
 import { markOverdueInvoices } from "../../modules/invoices/invoice.service.js";
+import { requestContext } from "../../lib/requestContext.js";
+import { requestId } from "../../middleware/requestId.js";
+import { logger } from "../../lib/logger.js";
 
 export const invoiceWorker = new Worker(
     "invoice",
-    async (job) => {
-        console.log(`Processing invoice job: ${job.name} (${job.id})`);
-        if(job.name === "mark-overdue") return await markOverdueInvoices();
-        throw new Error(`Unknown invoice job: ${job.name}`);
-    },
-    {connection: redis, concurrency: 1}
+    (job) => 
+        requestContext.run({ requestId: `job-${job.id}`}, async() => {
+            logger.info("job started", { jobName: job.name });
+            const result = await markOverdueInvoices();
+            logger.info("job completed", { jobName: job.name, updated: result.length});
+    }),
+    {connection: redis}
 );
 
 invoiceWorker.on("completed", (job) => {
