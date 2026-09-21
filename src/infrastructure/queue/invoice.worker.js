@@ -2,7 +2,6 @@ import { Worker } from "bullmq";
 import { redis } from "../redis/index.js";
 import { markOverdueInvoices } from "../../modules/invoices/invoice.service.js";
 import { requestContext } from "../../lib/requestContext.js";
-import { requestId } from "../../middleware/requestId.js";
 import { logger } from "../../lib/logger.js";
 
 export const invoiceWorker = new Worker(
@@ -17,9 +16,9 @@ export const invoiceWorker = new Worker(
 );
 
 invoiceWorker.on("completed", (job) => {
-    console.log(`Invoice job completed ${job.id}`);
+    logger.info("job completed event", { jobId: job.id });
 });
 
-invoiceWorker.on("failed", (job,error) => {
-    console.error(`Invoice job failed: ${job?.id}`,error.message);
+invoiceWorker.on("failed", (job, error) => {
+    logger.error("job failed event", { jobId: job?.id, error: error.message });
 });

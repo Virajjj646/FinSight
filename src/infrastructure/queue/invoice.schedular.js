@@ -1,4 +1,5 @@
 import { invoiceQueue } from "./invoice.queue.js";
+import { logger } from "../../lib/logger.js";
 
 export async function setupInvoiceSchedular(){
     await invoiceQueue.upsertJobScheduler(
@@ -15,5 +16,5 @@ export async function setupInvoiceSchedular(){
             }
         }
     );
-    console.log("Invoice schedular configured");
+    logger.info("invoice schedular configured");
 }

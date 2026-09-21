@@ -12,7 +12,7 @@ export function authenticate(req, res, next) {
   const token = header.slice("Bearer ".length).trim();
 
   try {
-    const payload = jwt.verify(token, env.JWT_SECRET);
+    const payload = jwt.verify(token, env.JWT_SECRET, { algorithms: ["HS256"] });
     req.auth = { userId: payload.sub, tenantId: payload.tenantId, role: payload.role };
 
     const ctx = requestContext.getStore();

@@ -2,7 +2,6 @@ import { createJournalEntry, getAccountBalance, listEntries } from "./ledger.ser
 import { balanceQuerySchema, createJournalEntrySchema, idempotencyKeySchema, listEntriesQuerySchema } from "./ledger.schema.js";
 import { AppError } from "../../lib/AppError.js";
 import { serializeEntry } from "../../lib/serialize.js";
-import { accounts } from "../../infrastructure/db/schema.js";
 
 export async function createJournalEntryController(req, res, next){
     try{

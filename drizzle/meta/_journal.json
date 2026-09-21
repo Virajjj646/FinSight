@@ -92,6 +92,20 @@
       "when": 1789857211997,
       "tag": "0012_puzzling_puma",
       "breakpoints": true
+    },
+    {
+      "idx": 13,
+      "version": "7",
+      "when": 1789857211998,
+      "tag": "0013_invoice_sequence_number",
+      "breakpoints": true
+    },
+    {
+      "idx": 14,
+      "version": "7",
+      "when": 1789857211999,
+      "tag": "0014_append_only_ledger",
+      "breakpoints": true
     }
   ]
 }

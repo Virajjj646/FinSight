@@ -1,16 +1,13 @@
-import { Pool } from "pg";
+import { pool } from "../../src/infrastructure/db/index.js";
 
-const connectionString = process.env.DATABASE_URL_TEST;
-
-export const testDbAvailable = Boolean(connectionString);
-
-const pool = connectionString ? new Pool({ connectionString }) : null;
+export const testDbAvailable = Boolean(process.env.DATABASE_URL_TEST);
 
 const TABLES = [
   "invoice_status_history",
   "invoice_payments",
   "invoice_items",
   "invoices",
+  "invoice_sequences",
   "entry_lines",
   "journal_entries",
   "accounts",
@@ -20,11 +17,11 @@ const TABLES = [
 ];
 
 export async function truncateAll() {
-  if (!pool) return;
+  if (!testDbAvailable) return;
   await pool.query(`TRUNCATE TABLE ${TABLES.join(", ")} RESTART IDENTITY CASCADE`);
 }
 
 export async function closeTestDb() {
-  if (!pool) return;
+  if (!testDbAvailable) return;
   await pool.end();
 }

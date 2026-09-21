@@ -4,10 +4,10 @@
   "description": "Financial Operations & Intelligence Platform",
   "type": "module",
   "scripts": {
-    "dev": "node --watch src/app.js",
+    "dev": "node --watch src/server.js",
     "worker": "node --watch src/worker.js",
-    "start": "node src/app.js",
-    "test": "node --test --test-concurrency=1 \"test/**/*.js\""
+    "start": "node src/server.js",
+    "test": "node --test --test-concurrency=1 --import ./test/setup.js \"test/**/*.test.js\""
   },
   "dependencies": {
     "bcrypt": "^6.0.0",

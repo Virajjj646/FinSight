@@ -76,6 +76,7 @@ export const invoices = pgTable("invoices",{
   id: uuid("id").defaultRandom().primaryKey(),
   tenantId: uuid("tenant_id").notNull().references(() => tenants.id),
   invoiceNumber:  varchar("invoice_number", { length: 50 }).notNull(),
+  sequenceNumber: bigint("sequence_number", { mode: "bigint" }).notNull(),
   customerName: varchar("customer_name", { length: 150 }).notNull(),
   status: varchar("status", { length: 30 }).notNull().default("DRAFT"),
   currency: varchar("currency", { length: 3 }).notNull(),
@@ -87,6 +88,7 @@ export const invoices = pgTable("invoices",{
 },
 (table) => [
   unique().on(table.tenantId, table.invoiceNumber),
+  unique().on(table.tenantId, table.sequenceNumber),
   index("invoices_tenant_id_status_idx").on(table.tenantId, table.status),
   index("invoices_tenant_id_due_date_idx").on(table.tenantId, table.dueDate),
   check("invoices_status_check", sql`${table.status} IN ('DRAFT','ISSUED','PARTIALLY_PAID','PAID','OVERDUE','VOID')`),

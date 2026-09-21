@@ -17,9 +17,7 @@ export async function createInvoiceController(req,res, next){
 export async function issueInvoiceController(req,res, next){
     try{
         const invoice = await issueInvoice(req.params.id, req.auth.tenantId);
-        res.status(200).json({
-            ...invoice, totalAmountMinor: invoice.totalAmountMinor.toString()
-        });
+        res.status(200).json(serializeInvoice(invoice));
     }catch(error){
         next(error);
     }
@@ -33,7 +31,7 @@ export async function createInvoicePaymentController(req, res, next){
         const { payment, invoice, journalEntry, replayed} = await createInvoicePayment({invoiceId: req.params.id, tenantId: req.auth.tenantId, idempotencyKey, ...data});
         res.status(replayed? 200 : 201).json({
             payment: { ...payment, amountMinor: payment.amountMinor.toString() },
-            invoice: { ...invoice, totalAmountMinor: invoice.totalAmountMinor.toString() },
+            invoice: serializeInvoice(invoice),
             journalEntry
         });
     }catch(error){
@@ -44,9 +42,7 @@ export async function createInvoicePaymentController(req, res, next){
 export async function voidInvoiceController(req, res, next){
     try{
         const invoice = await voidInvoice(req.params.id, req.auth.tenantId);
-        res.status(200).json({
-            ...invoice, totalAmountMinor:invoice.totalAmountMinor.toString()
-        });
+        res.status(200).json(serializeInvoice(invoice));
     }catch(error){next(error);}
 }
 

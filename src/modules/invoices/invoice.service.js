@@ -4,9 +4,8 @@ import { and, eq, inArray , lt, desc, sql } from "drizzle-orm";
 import { assertTransition, statusThatCanReach  } from "./invoice.state.js";
 import { createJournalEntryTx } from "../ledger/ledger.service.js";
 import { AppError } from "../../lib/AppError.js";
-import crypto from "crypto";
 import { fingerprint } from "../../lib/idempotency.js";
-import { decodeCursor, encodeCursor } from "../../lib/cursor.js";
+import { decodeSequenceCursor, encodeSequenceCursor } from "../../lib/cursor.js";
 
 export async function createInvoice({tenantId, customerName, currency, dueDate, items}){
     if(!items||items.length===0) throw new AppError("Invoice must have atleast one item", 422, "INVALID_INVOICE");
@@ -45,7 +44,7 @@ export async function createInvoice({tenantId, customerName, currency, dueDate, 
 
 export async function issueInvoice(invoiceId, tenantId) {
     return await db.transaction(async(tx) => {
-        const [invoice] = await tx.select().from(invoices).where(and(eq(invoices.id,invoiceId), eq(invoices.tenantId,tenantId))).limit(1);
+        const [invoice] = await tx.select().from(invoices).where(and(eq(invoices.id,invoiceId), eq(invoices.tenantId,tenantId))).for("update").limit(1);
         if(!invoice) throw new AppError("Invoice not found", 404, "NOT_FOUND");
         assertTransition(invoice.status, "ISSUED");
 
@@ -167,10 +166,24 @@ export async function createInvoicePayment({
 export async function voidInvoice(invoiceId, tenantId){
     return await db.transaction(async (tx) =>{
         const [invoice] = await tx
-            .select().from(invoices).where(and(eq(invoices.id,invoiceId), eq(invoices.tenantId,tenantId))).limit(1);
+            .select().from(invoices).where(and(eq(invoices.id,invoiceId), eq(invoices.tenantId,tenantId))).for("update").limit(1);
 
         if(!invoice) throw new AppError("Invoice not found", 404, "NOT_FOUND");
         assertTransition(invoice.status, "VOID");
+
+        // A paid invoice is corrected with a credit note, not voided: voiding
+        // it here would leave received money in the ledger against a voided
+        // invoice with no reversal.
+        const payments = await tx.select().from(invoicePayments)
+            .where(eq(invoicePayments.invoiceId, invoiceId));
+        const paidAmountMinor = payments.reduce((t, p) => t + p.amountMinor, 0n);
+        if(paidAmountMinor > 0n){
+            throw new AppError(
+                "Cannot void an invoice that has payments recorded; issue a credit note instead",
+                422,
+                "INVOICE_HAS_PAYMENTS",
+            );
+        }
 
         const [updatedInvoice] = await tx
             .update(invoices)
@@ -261,18 +274,16 @@ export async function listInvoices({ tenantId, limit, cursor, status, dueBefore}
     if(dueBefore) filters.push(lt(invoices.dueDate, dueBefore));
 
     if(cursor){
-        const decoded = decodeCursor(cursor);
+        const decoded = decodeSequenceCursor(cursor);
         if(!decoded) throw new AppError("Invalid cursor", 400, "INVALID_CURSOR");
-        filters.push(
-            sql`(${invoices.createdAt}, ${invoices.id}) < (${decoded.occurredAt}, (${decoded.id}))`
-        );
+        filters.push(sql`${invoices.sequenceNumber} < ${decoded.sequenceNumber}`);
     }
 
     const rows = await db
         .select()
         .from(invoices)
         .where(and(...filters))
-        .orderBy(desc(invoices.createdAt), desc(invoices.id))
+        .orderBy(desc(invoices.sequenceNumber))
         .limit(limit + 1);
 
     const hasMore = rows.length > limit;
@@ -297,12 +308,13 @@ export async function listInvoices({ tenantId, limit, cursor, status, dueBefore}
             const paid = paidByInvoice.get(inv.id) ?? 0n;
             return{
                 ...inv,
+                sequenceNumber: inv.sequenceNumber.toString(),
                 totalAmountMinor: inv.totalAmountMinor.toString(),
                 paidAmountMinor: paid.toString(),
                 outstandingMinor: (inv.totalAmountMinor - paid).toString()
             };
         }),
-        nextCursor: hasMore ? encodeCursor({ occurredAt: page.at(-1).createdAt, id: page.at(-1).id}) : null
+        nextCursor: hasMore ? encodeSequenceCursor({ sequenceNumber: page.at(-1).sequenceNumber }) : null
     };
 }
 
@@ -330,6 +342,7 @@ export async function getInvoice({ tenantId, invoiceId}){
 
     return{
         ...invoice,
+        sequenceNumber: invoice.sequenceNumber.toString(),
         totalAmountMinor: invoice.totalAmountMinor.toString(),
         paidAmountMinor: paid.toString(),
         outstandingMinor: (invoice.totalAmountMinor - paid).toString(),
