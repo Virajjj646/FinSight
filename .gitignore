@@ -4,5 +4,4 @@ node_modules/
 !.env.example
 dist/
 coverage/
-/test
 REMEDIATION_PLAN.md
