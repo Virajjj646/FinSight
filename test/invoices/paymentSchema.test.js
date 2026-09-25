@@ -2,12 +2,13 @@ import { test } from "node:test";
 import assert from "node:assert/strict";
 import { setTimeout as delay } from "node:timers/promises";
 import { createInvoicePaymentSchema } from "../../src/modules/invoices/invoice.payment.schema.js";
+import { randomUUID } from "node:crypto";
 
 const validPayment = (paidAt) => ({
   amountMinor: "100",
   paidAt,
-  bankAccountId: "00000000-0000-0000-0000-000000000001",
-  accountReceivableAccountId: "00000000-0000-0000-0000-000000000002",
+  bankAccountId: randomUUID(),
+  accountReceivableAccountId: randomUUID(),
 });
 
 test("paidAt validation is evaluated at parse time, not frozen at module load", async () => {
