@@ -1,4 +1,4 @@
-import { pgTable, uuid, varchar, timestamp, unique, bigint, text, integer, index, check } from "drizzle-orm/pg-core";
+import { pgTable, pgEnum, uuid, varchar, timestamp, unique, bigint, text, integer, index, check, vector, foreignKey } from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
 
 export const tenants = pgTable("tenants",{
@@ -145,3 +145,49 @@ export const invoiceSequences = pgTable("invoice_sequences", {
   lastValue: bigint("last_value", { mode: "bigint" }).notNull().default("0"),
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });
+
+export const EMBEDDING_DIMENSIONS = 1536;
+
+export const documentStatus = pgEnum('document_status',[
+  'pending', 'processing', 'ready', 'failed',
+]);
+
+export const documents = pgTable('documents', {
+  id:uuid('id').primaryKey().defaultRandom(),
+  tenantId: uuid('tenant_id').notNull().references(() => tenants.id),
+  title: text('source_url'),
+  contentSha256: text('content_sha256').notNull(),
+  status: documentStatus('status').notNull().default('pending'),
+  error: text('error'),
+  pageCount: integer('page_count'),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+  updatedAt: timestamp('updated_at', { withTimezone: true }).notNull().defaultNow(),
+}, (t) => [
+  unique('documents_id_tenant_uq').on(t.id, t.tenantId),
+  unique('documents_tenant_sha_uq').on(t.tenantId, t.contentSha256),
+  index('documents_tenant_status_idx').on(t.tenantId, t.status),
+]);
+
+export const documentChunks = pgTable('document_chunks', {
+  id: uuid('id').primaryKey().defaultRandom(),
+  tenantId: uuid('tenant_id').notNull(),
+  documentId: uuid('document_id').notNull(),
+  ordinal: integer('ordinal').notNull(),        
+  section: text('section'),                      
+  pageStart: integer('page_start').notNull(),
+  pageEnd: integer('page_end').notNull(),
+  content: text('content').notNull(),
+  tokenCount: integer('token_count').notNull(),
+  embedding: vector('embedding', { dimensions: EMBEDDING_DIMENSIONS }).notNull(),
+  embeddingModel: text('embedding_model').notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true }).notNull().defaultNow(),
+}, (t) => [
+  foreignKey({
+    name: 'chunks_document_tenant_fk',
+    columns: [t.documentId, t.tenantId],
+    foreignColumns: [documents.id, documents.tenantId],
+  }).onDelete('cascade'),
+  unique('chunks_document_ordinal_uq').on(t.documentId, t.ordinal),
+  index('chunks_tenant_idx').on(t.tenantId),
+  check('chunks_pages_chk', sql`${t.pageEnd} >= ${t.pageStart}`),
+]);

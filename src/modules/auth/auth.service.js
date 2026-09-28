@@ -9,10 +9,6 @@ import { AppError } from "../../lib/AppError.js";
 const BCRYPT_COST = 12;
 const TOKEN_EXPIRY = "15m";
 
-// A pre-computed hash of a value nobody will ever type, so bcrypt.compare
-// always runs on both branches of loginUser - otherwise an unknown email
-// short-circuits before bcrypt and the response time leaks which emails are
-// registered.
 const DUMMY_PASSWORD_HASH = await bcrypt.hash("finsight-dummy-password-for-timing-safety", BCRYPT_COST);
 
 function toPublicUser(user) {
