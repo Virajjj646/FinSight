@@ -146,7 +146,7 @@ export const invoiceSequences = pgTable("invoice_sequences", {
   updatedAt: timestamp("updated_at", { withTimezone: true }).notNull().defaultNow(),
 });
 
-export const EMBEDDING_DIMENSIONS = 1536;
+export const EMBEDDING_DIMENSIONS = 384; // Xenova/bge-small-en-v1.5
 
 export const documentStatus = pgEnum('document_status',[
   'pending', 'processing', 'ready', 'failed',

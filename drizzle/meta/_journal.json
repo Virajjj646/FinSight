@@ -120,6 +120,13 @@
       "when": 1790607193335,
       "tag": "0016_rag_documents",
       "breakpoints": true
+    },
+    {
+      "idx": 17,
+      "version": "7",
+      "when": 1790621741305,
+      "tag": "0017_embedding_dims_384",
+      "breakpoints": true
     }
   ]
 }
