@@ -7,7 +7,9 @@
     "dev": "node --watch src/server.js",
     "worker": "node --watch src/worker.js",
     "start": "node src/server.js",
-    "test": "node --test --test-concurrency=1 --import ./test/setup.js \"test/**/*.test.js\""
+    "test": "node --test --test-concurrency=1 --import ./test/setup.js \"test/**/*.test.js\"",
+    "db:migrate": "drizzle-kit migrate",
+    "db:migrate:test": "drizzle-kit migrate --config=drizzle.test.config.js"
   },
   "dependencies": {
     "bcrypt": "^6.0.0",
@@ -17,6 +19,7 @@
     "express": "^5.1.0",
     "ioredis": "^6.0.0",
     "jsonwebtoken": "^9.0.3",
+    "multer": "^2.4.0",
     "pg": "^8.23.0",
     "zod": "^4.0.0"
   },

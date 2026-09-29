@@ -3,6 +3,7 @@ import ledgerRoutes from "./modules/ledger/ledger.routes.js";
 import invoiceRoutes from "./modules/invoices/invoice.routes.js";
 import authRoutes from "./modules/auth/auth.routes.js";
 import accountRoutes from "./modules/accounts/accounts.routes.js";
+import documentRoutes from "./modules/documents/documents.routes.js"
 import { errorHandler } from "./middleware/errorHandler.js";
 import { AppError } from "./lib/AppError.js";
 import { requestLogger } from "./middleware/requestLogger.js";
@@ -23,6 +24,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/ledger", ledgerRoutes);
 app.use("/api/invoices", invoiceRoutes);
 app.use("/api/accounts", accountRoutes);
+app.use('/api/documents', documentRoutes);
 
 app.get("/health", (req, res) => {
   if (isShuttingDown()) {

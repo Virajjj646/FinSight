@@ -1,5 +1,6 @@
 import "./config/env.js";
 import { setupInvoiceSchedular } from "./infrastructure/queue/invoice.schedular.js";
+import { startDocumentWorker } from "./infrastructure/queue/document.worker.js";
 import { invoiceWorker } from "./infrastructure/queue/invoice.worker.js";
 import { invoiceQueue } from "./infrastructure/queue/invoice.queue.js";
 import { redis } from "./infrastructure/redis/index.js";
@@ -20,3 +21,6 @@ registerShutdown(
   ],
   { timeoutMs: 30_000 }
 );
+
+const documentWorker = startDocumentWorker();
+await documentWorker.close();

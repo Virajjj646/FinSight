@@ -1,5 +1,6 @@
-import { pgTable, pgEnum, uuid, varchar, timestamp, unique, bigint, text, integer, index, check, vector, foreignKey } from "drizzle-orm/pg-core";
+import { pgTable, pgEnum, uuid, varchar, timestamp, unique, bigint, text, integer, index, check, vector, foreignKey, customType} from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
+import { time } from "drizzle-orm/mysql-core";
 
 export const tenants = pgTable("tenants",{
   id:uuid("id").defaultRandom().primaryKey(),
@@ -191,3 +192,24 @@ export const documentChunks = pgTable('document_chunks', {
   index('chunks_tenant_idx').on(t.tenantId),
   check('chunks_pages_chk', sql`${t.pageEnd} >= ${t.pageStart}`),
 ]);
+
+const bytea = customType({ dataType: () => 'bytea'});
+
+export const MAX_UPLOAD_BYTES = 10*1024*1024;
+
+export const documentFiles = pgTable('document_files', {
+  documentId: uuid('document_id').primaryKey(),
+  tenantId: uuid('tenant_id').notNull(),
+  mimeType: text('mime_type').notNull(),
+  sizeBytes: integer('size_bytes').notNull(),
+  bytes: bytea('bytes').notNull(),
+  createdAt: timestamp('created_at', { withTimezone: true}).notNull().defaultNow(),
+}, (t) => [
+  foreignKey({
+    name: 'files_document_tenant_fk',
+    columns: [t.documentId, t.tenantId],
+    foreignColumns: [documents.id, documents.tenantId],
+  }).onDelete('cascade'),
+  check('files_size_chk', sql`${t.sizeBytes} > 0 AND ${t.sizeBytes} <= 10485760`),
+]);
+
