@@ -12,6 +12,7 @@
     "db:migrate:test": "drizzle-kit migrate --config=drizzle.test.config.js"
   },
   "dependencies": {
+    "@huggingface/transformers": "^4.3.0",
     "bcrypt": "^6.0.0",
     "bullmq": "^6.3.4",
     "dotenv": "^17.0.0",
