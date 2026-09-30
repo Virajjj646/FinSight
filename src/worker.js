@@ -7,20 +7,21 @@ import { redis } from "./infrastructure/redis/index.js";
 import { pool } from "./infrastructure/db/index.js";
 import { registerShutdown } from "./lib/shutdown.js";
 import { logger } from "./lib/logger.js";
+import { documentQueue } from "./infrastructure/queue/document.queue.js";
 
 logger.info("worker started");
 
 await setupInvoiceSchedular();
+const documentWorker = startDocumentWorker();
 
 registerShutdown(
   [
-    ["bullmq-worker", () => invoiceWorker.close()],
-    ["bullmq-queue", () => invoiceQueue.close()],
+    ["bullmq-invoice-worker", () => invoiceWorker.close()],
+    ["bullmq-document-worker", () => documentWorker.close()],
+    ["bullmq-invoice-queue", () => invoiceQueue.close()],
+    ["bullmq-document-queue", () => documentQueue.close()],
     ["redis", () => redis.quit()],
     ["postgres", () => pool.end()],
   ],
   { timeoutMs: 30_000 }
 );
-
-const documentWorker = startDocumentWorker();
-await documentWorker.close();

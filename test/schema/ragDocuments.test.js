@@ -4,9 +4,9 @@ import assert from 'node:assert/strict';
 import { randomUUID, createHash } from 'node:crypto';
 import { eq, inArray, count } from 'drizzle-orm';
 import { db } from '../../src/infrastructure/db/index.js';
-import { tenants, documents, documentChunks } from '../../src/infrastructure/db/schema.js';
+import { tenants, documents, documentChunks, EMBEDDING_DIMENSIONS} from '../../src/infrastructure/db/schema.js';
 
-const vec = (n = 1536) => Array(n).fill(0.01);
+const vec = (n = EMBEDDING_DIMENSIONS) => Array(n).fill(0.01);
 const sha = (s) => createHash('sha256').update(s).digest('hex');
 const pgErr = (err) => err?.cause ?? err; // drizzle 0.44 wraps the pg error
 
@@ -28,7 +28,7 @@ function chunkRow(doc, overrides = {}) {
     content: 'Overdue amounts accrue a late fee of 1.5% per month.',
     tokenCount: 12,
     embedding: vec(),
-    embeddingModel: 'text-embedding-3-small',
+    embeddingModel: 'Xenova/bge-small-en-v1.5',
     ...overrides,
   };
 }
@@ -89,9 +89,9 @@ describe('RAG schema: documents & document_chunks', () => {
 
     await assert.rejects(
       async () => {
-        await db.insert(documentChunks).values(chunkRow(doc, { embedding: vec(1535) }));
+        await db.insert(documentChunks).values(chunkRow(doc, { embedding: vec(EMBEDDING_DIMENSIONS-1) }));
       },
-      (err) => /expected 1536 dimensions/.test(pgErr(err).message),
+      (err) => pgErr(err).message.includes(`expected ${EMBEDDING_DIMENSIONS} dimensions`),
     );
   });
 

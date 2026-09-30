@@ -6,7 +6,8 @@
 // the kind of queuing a production deployment would see too.
 import { test, after } from "node:test";
 import assert from "node:assert/strict";
-import { testDbAvailable, truncateAll, closeTestDb } from "./helpers/db.js";
+import { testDbAvailable, truncateAll } from "./helpers/db.js";
+import { closeTestResources } from "./helpers/teardown.js";
 import { startServer } from "./helpers/server.js";
 import { api } from "./helpers/api.js";
 import {
@@ -528,5 +529,5 @@ test(
 
 after(async () => {
   if (!testDbAvailable) return;
-  await closeTestDb();
+  await closeTestResources();
 });
