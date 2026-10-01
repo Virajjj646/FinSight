@@ -1,6 +1,5 @@
 import { pgTable, pgEnum, uuid, varchar, timestamp, unique, bigint, text, integer, index, check, vector, foreignKey, customType} from "drizzle-orm/pg-core";
 import { sql } from "drizzle-orm";
-import { time } from "drizzle-orm/mysql-core";
 
 export const tenants = pgTable("tenants",{
   id:uuid("id").defaultRandom().primaryKey(),
@@ -156,7 +155,7 @@ export const documentStatus = pgEnum('document_status',[
 export const documents = pgTable('documents', {
   id:uuid('id').primaryKey().defaultRandom(),
   tenantId: uuid('tenant_id').notNull().references(() => tenants.id),
-  title: text('source_url'),
+  title: text('title'),
   contentSha256: text('content_sha256').notNull(),
   status: documentStatus('status').notNull().default('pending'),
   error: text('error'),

@@ -1,0 +1,1 @@
+ALTER TABLE "documents" RENAME COLUMN "source_url" TO "title";

@@ -1,7 +1,8 @@
 import { pipeline } from '@huggingface/transformers';
 import { EMBEDDING_MODEL } from './model.js';
+import { EMBEDDING_DIMENSIONS } from '../../../infrastructure/db/schema.js';
 
-export const EMBEDDING_DIMS = 384;
+export const EMBEDDING_DIMS = EMBEDDING_DIMENSIONS;
 export const QUERY_PREFIX = 'Represent this sentence for searching relevant passages: ';
 
 let extractorPromise;
