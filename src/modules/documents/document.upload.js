@@ -12,9 +12,9 @@ export function uploadPdf(req, res, next){
         if(!err) return next();
         if(err instanceof multer.MulterError){
             if(err.code === 'LIMIT_FILE_SIZE'){
-                return next(new AppError(413, 'FILLE_TOO_LARGE', 'Max upload size is 10 MB'));
+                return next(new AppError('Max upload size is 10 MB', 413, 'FILE_TOO_LARGE'));
             }
-            return next(new AppError(400, 'INVALID_VALID', err.message));
+            return next(new AppError(err.message, 400, 'INVALID_UPLOAD'));
         }
         next(err);
     });

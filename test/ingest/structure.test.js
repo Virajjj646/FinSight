@@ -65,3 +65,11 @@ test('acme fixture: sections 4 and 5 with expected clauses', async () => {
   assert.ok(['4.2', '4.3'].every((id) => s4.blocks.some((b) => b.id === id)));
   assert.ok(s5.blocks.some((b) => b.id === '5.2'));
 });
+
+test('soft line wraps do not glue words together', async () => {
+  for (const name of ['acme-supply-agreement.pdf', 'globex-services-agreement.pdf']) {
+    const buf = await readFile(`test/fixtures/documents/${name}`);
+    const text = (await extractDocumentText(buf)).map((p) => p.text).join('\n');
+    assert.doesNotMatch(text, /paymoney|adiligent/, name);
+  }
+});

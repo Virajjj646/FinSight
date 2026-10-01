@@ -19,10 +19,10 @@ const documentColumns = {
 };
 
 function assertPdf(file){
-    if(!file) throw new AppError(400, 'FILE_REQUIRED','A PDF file is required');
-    if(file.size > MAX_UPLOAD_BYTES) throw new AppError(413, 'FILE_TOO_LARGE', 'Max upload size is 10 MB');
+    if(!file) throw new AppError('A PDF file is required', 400, 'FILE_REQUIRED');
+    if(file.size > MAX_UPLOAD_BYTES) throw new AppError('Max upload size is 10 MB', 413, 'FILE_TOO_LARGE');
     if(!file.buffer.subarray(0, 5).equals(PDF_MAGIC)){
-        throw new AppError(415, 'UNSUPPORTED_MEDIA_TYPE', 'Only PDF files areaccepted');
+        throw new AppError('Only PDF files areaccepted', 415, 'UNSUPPORTED_MEDIA_TYPE',);
     }
 }
 
@@ -66,7 +66,7 @@ export async function getDocument({ tenantId, documentId }){
         .select(documentColumns)
         .from(documents)
         .where(and(eq(documents.id, documentId), eq(documents.tenantId,tenantId)));
-    if(!doc) throw new AppError(404, 'DOCUMENT_NOT_FOUND', 'Document not found');
+    if(!doc) throw new AppError('Document not found', 404, 'DOCUMENT_NOT_FOUND');
     return doc;
 }
 

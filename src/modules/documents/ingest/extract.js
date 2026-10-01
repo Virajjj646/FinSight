@@ -103,16 +103,24 @@ function assertExtractable(pages) {
 function itemsToText(items) {
     let text = "";
     let prevEnd = null;
+    let prevY = null;
 
     for (const item of items) {
         if (!("str" in item)) continue;
 
         const x = item.transform[4];
+        const y = item.transform[5];
         const fontSize = Math.hypot(item.transform[2], item.transform[3]) || 10;
-        const gap = prevEnd === null ? 0 : x - prevEnd;
+        const newLine = prevY !== null && Math.abs(y - prevY) > fontSize * 0.5;
 
-        if (gap > fontSize * 0.1 && !/\s$/.test(text) && !/^\s/.test(item.str)) text += " ";
+        if (newLine) {
+            if (!text.endsWith("\n")) text += "\n";
+        } else {
+            const gap = prevEnd === null ? 0 : x - prevEnd;
+            if (gap > fontSize * 0.1 && !/\s$/.test(text) && !/^\s/.test(item.str)) text += " ";
+        }
         text += item.str;
+        if (item.str) prevY = y;
 
         if (item.hasEOL) {
             text += "\n";
