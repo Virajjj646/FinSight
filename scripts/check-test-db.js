@@ -15,10 +15,3 @@ const { rows } = await client.query(`
 `);
 console.table(rows);
 await client.end();
-
-maths - 48/50
-dl - 44/50
-game ai - 43/50
-cn - 44/50
-water - 44/50
-fla 41/45

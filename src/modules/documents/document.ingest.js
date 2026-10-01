@@ -2,6 +2,11 @@ import { and, eq, inArray, sql } from "drizzle-orm";
 import { db } from "../../infrastructure/db/index.js";
 import { documents, documentFiles } from "../../infrastructure/db/schema.js";
 import { extractDocumentText, UnextractableDocumentError } from "./ingest/extract.js";
+import { parseStructure } from "./ingest/structure.js";
+import { chunkDocument } from "./ingest/chunk.js";
+import { getTokenCounter } from "./ingest/model.js";
+import { embedTexts } from "./ingest/embed.js";
+import { writeChunks } from "./ingest/write.js";
 
 export async function ingestDocument({ documentId, tenantId }) {
     const [claimed] = await db
@@ -12,7 +17,7 @@ export async function ingestDocument({ documentId, tenantId }) {
             eq(documents.tenantId, tenantId),
             inArray(documents.status, ["pending", "processing"]),
         ))
-        .returning({ id: documents.id });
+        .returning({ id: documents.id, title: documents.title });
 
     if (!claimed) return { skipped: true };
 
@@ -27,15 +32,25 @@ export async function ingestDocument({ documentId, tenantId }) {
     if (!file) throw new UnextractableDocumentError("Document file missing");
 
     const pages = await extractDocumentText(file.bytes);
+    const chunks = chunkDocument(parseStructure(pages), {
+        countTokens: await getTokenCounter(),
+        fallbackTitle: claimed.title?.replace(/\.pdf$/i, "") || undefined,
+    });
 
-    // 2c–2d go here: chunk -> embed -> write chunks (one transaction)
+    if(chunks.length === 0) throw new UnextractableDocumentError("Document produced no chunkable text");
 
-    await db
-        .update(documents)
-        .set({ status: "ready", pageCount: pages.length, updatedAt: sql`now()` })
-        .where(and(eq(documents.id, documentId), eq(documents.tenantId, tenantId)));
+    const vectors = await embedTexts(chunks.map((c) => c.content));
 
-    return { skipped: false, pageCount: pages.length };
+    const written = await writeChunks({
+        documentId,
+        tenantId,
+        pageCount: pages.length,
+        chunks,
+        vectors,
+    });
+
+    if(!written) return { skipped: true };
+    return { skipped: false, pageCount: pages.length, chunkCount: chunks.length };
 }
 
 export async function markDocumentsFailed({ documentId, tenantId, error }) {
@@ -46,5 +61,9 @@ export async function markDocumentsFailed({ documentId, tenantId, error }) {
             error: String(error?.message ?? error).slice(0, 1000),
             updatedAt: sql`now()`,
         })
-        .where(and(eq(documents.id, documentId), eq(documents.tenantId, tenantId)));
+        .where(and(
+            eq(documents.id, documentId),
+            eq(documents.tenantId, tenantId),
+            inArray(documents.status, ["pending", "processing"]),
+        ));
 }
