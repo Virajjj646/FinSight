@@ -18,6 +18,9 @@ export async function askQuestion(
     generate,
     minScore = ASK_MIN_SCORE,
     log = logger,
+    // Called once per LLM call, so abstentions before the model are free.
+    // Throws to refuse the call (the API passes a per-tenant daily budget).
+    consumeLlmBudget = async () => {},
   } = {},
 ) {
   const started = performance.now();
@@ -55,6 +58,7 @@ export async function askQuestion(
   if (topScore < minScore) return abstain('below_score_floor');
 
   const { system, prompt, used } = buildPrompt(question, chunks);
+  await consumeLlmBudget(tenantId);
   const generation = await (generate ?? getGenerator())({ system, prompt });
   trace.model = generation.model;
   trace.llmLatencyMs = generation.latencyMs;

@@ -29,6 +29,9 @@ function classify(err) {
   if (err?.type === "entity.parse.failed") {
     return { status: 400, code: "INVALID_JSON", message: "The request body is not valid JSON." };
   }
+  if (err?.type === "entity.too.large") {
+    return { status: 413, code: "PAYLOAD_TOO_LARGE", message: "The request body is too large." };
+  }
   if (err instanceof ZodError) {
     return { status: 422, code: "VALIDATION_FAILED", message: "Request validation failed." };
   }

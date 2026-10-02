@@ -23,3 +23,16 @@ if (testDatabaseUrl === originalDatabaseUrl) {
 }
 
 process.env.DATABASE_URL = testDatabaseUrl;
+
+// The suites register and log in many users from 127.0.0.1, which production
+// limits would trip. Limiter behaviour is tested with explicit limits instead.
+for (const name of [
+  "RATE_LIMIT_ASK_PER_MIN",
+  "RATE_LIMIT_LOGIN_PER_15MIN",
+  "RATE_LIMIT_REGISTER_PER_HOUR",
+  "RATE_LIMIT_UPLOAD_PER_HOUR",
+  "LLM_DAILY_BUDGET_PER_TENANT",
+]) {
+  process.env[name] = "1000000";
+}
+process.env.CORS_ORIGINS = "http://allowed.example";

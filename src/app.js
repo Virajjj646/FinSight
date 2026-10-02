@@ -10,17 +10,22 @@ import { errorHandler } from "./middleware/errorHandler.js";
 import { AppError } from "./lib/AppError.js";
 import { requestLogger } from "./middleware/requestLogger.js";
 import { isShuttingDown } from "./lib/shutdown.js";
+import { securityHeaders, cors } from "./middleware/securityHeaders.js";
+import { env } from "./config/env.js";
 
 const app = express();
 
+app.disable("x-powered-by");
 app.use(requestLogger);
+app.use(securityHeaders);
+app.use(cors({ origins: env.CORS_ORIGINS }));
 app.use((req, res, next) => {
   if (isShuttingDown()) {
     res.setHeader("Connection", "close");
   }
   next();
 });
-app.use(express.json());
+app.use(express.json({ limit: "100kb" }));
 
 app.use("/api/auth", authRoutes);
 app.use("/api/ledger", ledgerRoutes);

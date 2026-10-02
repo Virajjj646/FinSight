@@ -240,6 +240,12 @@ Copy-Item .env.example .env   # then fill in the values
 | `FINSIGHT_LLM_BASE_URL` | for /ask | Base URL of an OpenAI-compatible API (the client appends `/chat/completions`) |
 | `FINSIGHT_LLM_API_KEY` | for /ask | Bearer token |
 | `FINSIGHT_LLM_MODEL` | no | Defaults to `llama-3.3-70b-versatile` |
+| `CORS_ORIGINS` | no | Comma-separated browser origins allowed to call the API (exact match). Empty means none |
+| `RATE_LIMIT_ASK_PER_MIN` | no | `/api/ask` requests per user per minute. Default 20 |
+| `RATE_LIMIT_LOGIN_PER_15MIN` | no | Login attempts per IP and email per 15 minutes. Default 10 |
+| `RATE_LIMIT_REGISTER_PER_HOUR` | no | Registrations per IP per hour. Default 5 |
+| `RATE_LIMIT_UPLOAD_PER_HOUR` | no | Document uploads per tenant per hour. Default 30 |
+| `LLM_DAILY_BUDGET_PER_TENANT` | no | LLM calls per tenant per UTC day. Default 200 |
 
 `src/config/env.js` validates these values at startup and refuses to start if they are invalid.
 
@@ -265,6 +271,17 @@ The first ingestion (in the worker) and the first `/ask` (in the API) download `
 ## API reference
 
 All `/api/*` routes except `/api/auth/*` and `/api/admin/*` need `Authorization: Bearer <token>`. Errors return `{ "error", "code", "requestId" }`, plus `details` for validation errors (`422 VALIDATION_FAILED`).
+
+Hardening:
+
+- **Rate limits.** These are Redis fixed-window counters (`src/middleware/rateLimit.js`), configured through the `RATE_LIMIT_*` variables. They apply to `/api/ask` (per user), `/api/auth/login` (per IP and email), `/api/auth/register` (per IP) and `POST /api/documents` (per tenant, checked before the upload is buffered).
+  - Over the limit, a request gets `429 RATE_LIMITED` with `Retry-After`.
+  - `/api/ask` also has a per-tenant daily LLM budget. Only requests that reach the model count against it. Over the budget, a request gets `429 LLM_BUDGET_EXCEEDED`.
+  - If Redis errors or doesn't answer within 200 ms, both fail open and log a warning.
+- **Security headers and CORS.** These are in `src/middleware/securityHeaders.js`. Every response carries `nosniff`, `X-Frame-Options: DENY`, a `default-src 'none'` CSP, HSTS, `no-referrer` and the cross-origin isolation headers, and `X-Powered-By` is removed.
+  - CORS allows only the origins in `CORS_ORIGINS`, without credentials.
+  - JSON bodies are capped at 100 KB (`413 PAYLOAD_TOO_LARGE`).
+- **Roles.** `requireRole` (`src/middleware/requireRole.js`) checks the JWT `role`. Voiding an invoice needs `OWNER` or `ADMIN`, and other roles get `403 FORBIDDEN`.
 
 | Method | Path | Auth | Idempotency-Key | Purpose |
 | --- | --- | --- | --- | --- |
@@ -418,13 +435,12 @@ drizzle/           0000–0019 migrations (0007 zero-sum trigger, 0013 invoice s
 
 ## Known limitations
 
-- `/ask` has no rate limiting. Each request that clears the score floor makes one LLM call.
-- There is no CORS middleware and no security-headers middleware.
+- Rate limits are fixed-window, so a burst at a window boundary can reach twice the limit. `req.ip` is the socket address: behind a reverse proxy, set Express `trust proxy` or every client shares one login and register bucket.
 - Vector search has no ANN index (an exact scan, by design for now).
 - Scanned PDFs are rejected. OCR is not implemented.
 - There is no endpoint to list, delete or re-ingest documents, and no endpoint to reverse journal entries. The schema has `reversed_by_entry_id` and the trigger allows setting it once, but no code path sets it.
 - Voiding a paid invoice is refused with a message that points to credit notes, which are not implemented.
-- Login issues a token for the user's first membership found (`LIMIT 1`). There is no tenant switching. The JWT carries `role`, but no route checks it. There is no refresh token (tokens expire after 15 minutes).
+- Login issues a token for the user's first membership found (`LIMIT 1`). There is no tenant switching. Only invoice voiding checks the JWT `role`, and registration creates only `OWNER` memberships. There is no refresh token (tokens expire after 15 minutes).
 - A payment replay returns the invoice's current state, not a stored copy of the original response.
 - `markOverdueInvoices` scans all tenants and updates rows one by one inside a single transaction.
 - Uploaded PDFs are stored as `bytea` in Postgres and buffered in memory by multer (10 MB cap).

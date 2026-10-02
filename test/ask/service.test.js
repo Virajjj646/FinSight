@@ -101,6 +101,47 @@ test('generator errors propagate unchanged', async () => {
   });
 });
 
+const budgetRecorder = () => {
+  const fn = async (tenantId) => {
+    fn.calls.push(tenantId);
+  };
+  fn.calls = [];
+  return fn;
+};
+
+test('LLM budget is consumed once per model call, with the tenant id', async () => {
+  const consumeLlmBudget = budgetRecorder();
+  await ask({
+    retrieve: retrieveReturning([chunk(1, 0.7)]),
+    generate: generateReturning('Yes [1].'),
+    consumeLlmBudget,
+  });
+  assert.deepEqual(consumeLlmBudget.calls, ['t1']);
+});
+
+test('LLM budget is not consumed when abstaining before the model', async () => {
+  const consumeLlmBudget = budgetRecorder();
+  await ask({ retrieve: retrieveReturning([]), generate: generateReturning('unused'), consumeLlmBudget });
+  await ask({
+    retrieve: retrieveReturning([chunk(1, ASK_MIN_SCORE - 0.01)]),
+    generate: generateReturning('unused'),
+    consumeLlmBudget,
+  });
+  assert.equal(consumeLlmBudget.calls.length, 0);
+});
+
+test('exhausted LLM budget propagates and skips the model', async () => {
+  const generate = generateReturning('unused');
+  const consumeLlmBudget = async () => {
+    throw new AppError('Daily question limit reached for this workspace', 429, 'LLM_BUDGET_EXCEEDED');
+  };
+  await assert.rejects(
+    ask({ retrieve: retrieveReturning([chunk(1, 0.7)]), generate, consumeLlmBudget }),
+    { status: 429, code: 'LLM_BUDGET_EXCEEDED' },
+  );
+  assert.equal(generate.calls.length, 0);
+});
+
 test('logs one line per ask with the decision and retrieval scores', async () => {
   const lines = [];
   await askQuestion(
