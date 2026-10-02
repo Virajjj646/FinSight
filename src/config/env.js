@@ -5,6 +5,15 @@ const envSchema = z.object({
   DATABASE_URL: z.string().min(1, "DATABASE_URL is required"),
   REDIS_URL: z.string().min(1, "REDIS_URL is required"),
   JWT_SECRET: z.string().min(32, "JWT_SECRET must be at least 32 characters"),
+  // jsonwebtoken expiresIn string. Empty (as in .env.example) means the default.
+  JWT_EXPIRY: z.preprocess(
+    (v) => (v === "" ? undefined : v),
+    z
+      .string()
+      .min(1)
+      .regex(/^\d+[smhd]$/, 'JWT_EXPIRY must be a number followed by s, m, h or d (e.g. "15m", "8h")')
+      .default("15m")
+  ),
   PORT: z.coerce.number().int().positive(),
   // Empty (as in .env.example) means admin routes are disabled.
   ADMIN_TOKEN: z.preprocess(

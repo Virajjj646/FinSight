@@ -1,5 +1,6 @@
 import { Router } from "express";
-import { registerController, loginController } from "./auth.controller.js";
+import { registerController, loginController, meController } from "./auth.controller.js";
+import { authenticate } from "../../middleware/authenticate.js";
 import { rateLimit } from "../../middleware/rateLimit.js";
 import { env } from "../../config/env.js";
 
@@ -23,5 +24,6 @@ const registerLimiter = rateLimit({
 
 router.post("/register", registerLimiter, registerController);
 router.post("/login", loginLimiter, loginController);
+router.get("/me", authenticate, meController);
 
 export default router;

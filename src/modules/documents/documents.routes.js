@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { uploadPdf } from './document.upload.js';
-import { uploadDocument, getDocumentsById } from './document.controller.js';
+import { uploadDocument, getDocumentsById, listDocumentsController } from './document.controller.js';
 import { authenticate } from '../../middleware/authenticate.js';
 import { rateLimit } from '../../middleware/rateLimit.js';
 import { env } from '../../config/env.js';
@@ -18,6 +18,7 @@ const uploadLimiter = rateLimit({
 router.use(authenticate);
 
 router.post('/', uploadLimiter, uploadPdf, uploadDocument);
+router.get('/', listDocumentsController);
 router.get('/:id', getDocumentsById);
 
 export default router;

@@ -1,13 +1,12 @@
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { db } from "../../infrastructure/db/index.js";
 import { tenants, users, memberships } from "../../infrastructure/db/schema.js";
 import { env } from "../../config/env.js";
 import { AppError } from "../../lib/AppError.js";
 
 const BCRYPT_COST = 12;
-const TOKEN_EXPIRY = "15m";
 
 const DUMMY_PASSWORD_HASH = await bcrypt.hash("finsight-dummy-password-for-timing-safety", BCRYPT_COST);
 
@@ -59,8 +58,27 @@ export async function loginUser({ email, password }) {
   const token = jwt.sign(
     { sub: user.id, tenantId: membership.tenantId, role: membership.role },
     env.JWT_SECRET,
-    { expiresIn: TOKEN_EXPIRY }
+    { expiresIn: env.JWT_EXPIRY }
   );
 
-  return { token };
+  return { token, expiresIn: env.JWT_EXPIRY };
+}
+
+// The role comes from the membership row, not the token, so a role change or
+// a removed membership is reflected before the token expires.
+export async function getCurrentUser({ userId, tenantId }) {
+  const [row] = await db
+    .select({
+      user: { id: users.id, name: users.name, email: users.email },
+      tenant: { id: tenants.id, name: tenants.name },
+      role: memberships.role,
+    })
+    .from(memberships)
+    .innerJoin(users, eq(users.id, memberships.userId))
+    .innerJoin(tenants, eq(tenants.id, memberships.tenantId))
+    .where(and(eq(memberships.userId, userId), eq(memberships.tenantId, tenantId)))
+    .limit(1);
+
+  if (!row) throw new AppError("Invalid or expired token", 401, "UNAUTHENTICATED");
+  return row;
 }

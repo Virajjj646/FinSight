@@ -1,9 +1,10 @@
 import { createHash } from 'node:crypto';
-import { and, eq } from 'drizzle-orm';
+import { and, desc, eq, sql } from 'drizzle-orm';
 import { db } from '../../infrastructure/db/index.js';
 import { documents, documentFiles, MAX_UPLOAD_BYTES } from '../../infrastructure/db/schema.js';
 import { enqueueIngestion } from '../../infrastructure/queue/document.queue.js';
 import { AppError } from '../../lib/AppError.js';
+import { encodeTimestampCursor, decodeTimestampCursor } from '../../lib/cursor.js';
 
 const PDF_MAGIC = Buffer.from('%PDF-');
 
@@ -68,5 +69,44 @@ export async function getDocument({ tenantId, documentId }){
         .where(and(eq(documents.id, documentId), eq(documents.tenantId,tenantId)));
     if(!doc) throw new AppError('Document not found', 404, 'DOCUMENT_NOT_FOUND');
     return doc;
+}
+
+// Keyset pagination on (created_at, id). The cursor carries created_at as
+// Postgres text, never a JS Date, which would truncate microseconds to ms.
+export async function listDocuments({ tenantId, limit, cursor, status }){
+    const filters = [eq(documents.tenantId, tenantId)];
+
+    if(status) filters.push(eq(documents.status, status));
+
+    if(cursor){
+        const decoded = decodeTimestampCursor(cursor);
+        if(!decoded) throw new AppError('Invalid cursor', 400, 'INVALID_CURSOR');
+        filters.push(sql`(${documents.createdAt}, ${documents.id}) < (${decoded.createdAtText}::timestamptz, ${decoded.id}::uuid)`);
+    }
+
+    const rows = await db
+        .select({
+            id: documents.id,
+            title: documents.title,
+            status: documents.status,
+            error: documents.error,
+            pageCount: documents.pageCount,
+            createdAt: documents.createdAt,
+            updatedAt: documents.updatedAt,
+            createdAtText: sql`${documents.createdAt}::text`,
+        })
+        .from(documents)
+        .where(and(...filters))
+        .orderBy(desc(documents.createdAt), desc(documents.id))
+        .limit(limit + 1);
+
+    const hasMore = rows.length > limit;
+    const page = hasMore ? rows.slice(0, limit) : rows;
+    const last = page.at(-1);
+
+    return {
+        items: page.map(({ createdAtText, ...doc }) => doc),
+        nextCursor: hasMore ? encodeTimestampCursor({ createdAtText: last.createdAtText, id: last.id }) : null,
+    };
 }
 

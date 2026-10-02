@@ -1,5 +1,5 @@
 import { registerSchema, loginSchema } from "./auth.schema.js";
-import { registerUser, loginUser } from "./auth.service.js";
+import { registerUser, loginUser, getCurrentUser } from "./auth.service.js";
 
 export async function registerController(req, res, next) {
   try {
@@ -15,6 +15,15 @@ export async function loginController(req, res, next) {
   try {
     const data = loginSchema.parse(req.body);
     const result = await loginUser(data);
+    res.status(200).json(result);
+  } catch (error) {
+    next(error);
+  }
+}
+
+export async function meController(req, res, next) {
+  try {
+    const result = await getCurrentUser({ userId: req.auth.userId, tenantId: req.auth.tenantId });
     res.status(200).json(result);
   } catch (error) {
     next(error);
