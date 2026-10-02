@@ -1,7 +1,7 @@
 import "./config/env.js";
 import { setupInvoiceSchedular } from "./infrastructure/queue/invoice.schedular.js";
 import { startDocumentWorker } from "./infrastructure/queue/document.worker.js";
-import { invoiceWorker } from "./infrastructure/queue/invoice.worker.js";
+import { startInvoiceWorker } from "./infrastructure/queue/invoice.worker.js";
 import { invoiceQueue } from "./infrastructure/queue/invoice.queue.js";
 import { redis } from "./infrastructure/redis/index.js";
 import { pool } from "./infrastructure/db/index.js";
@@ -12,6 +12,7 @@ import { documentQueue } from "./infrastructure/queue/document.queue.js";
 logger.info("worker started");
 
 await setupInvoiceSchedular();
+const invoiceWorker = startInvoiceWorker();
 const documentWorker = startDocumentWorker();
 
 registerShutdown(

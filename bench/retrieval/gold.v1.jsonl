@@ -1,0 +1,46 @@
+{"id": "acme-late-fee", "type": "lookup", "question": "What is the late fee on overdue amounts under the Acme agreement?", "answers": [{"doc": "acme", "span": "one and a half percent (1.5%)"}]}
+{"id": "acme-early-discount", "type": "lookup", "question": "What early payment discount does Acme offer?", "answers": [{"doc": "acme", "span": "two percent (2%) of the invoice amount"}]}
+{"id": "acme-due-date", "type": "lookup", "question": "How many days after the invoice date is payment due under the supply agreement?", "answers": [{"doc": "acme", "span": "thirty (30) days after the Invoice Date"}]}
+{"id": "acme-convenience-notice", "type": "paraphrase", "question": "How much notice do we need to give to end the supply contract without cause?", "answers": [{"doc": "acme", "span": "sixty (60) days"}]}
+{"id": "acme-advance", "type": "table", "question": "What percentage of the order value is paid in advance?", "answers": [{"doc": "acme", "span": "Advance 20%"}]}
+{"id": "acme-dispatch-share", "type": "table", "question": "How much is payable when goods are dispatched?", "answers": [{"doc": "acme", "span": "On dispatch 70%"}]}
+{"id": "acme-final-share", "type": "table", "question": "When is the final 10% of the order value payable?", "answers": [{"doc": "acme", "span": "30 days after delivery"}]}
+{"id": "acme-dispute-window", "type": "lookup", "question": "How long do we have to raise a dispute about an invoice?", "answers": [{"doc": "acme", "span": "seven (7) Business Days"}]}
+{"id": "acme-nonpayment-breach", "type": "paraphrase", "question": "If a payment stays overdue for a long time, when does it count as a serious breach?", "answers": [{"doc": "acme", "span": "forty-five (45) days after the Due Date"}]}
+{"id": "acme-start-term", "type": "lookup", "question": "When does the Acme agreement start and how long is the initial term?", "answers": [{"doc": "acme", "span": "1 April 2026"}]}
+{"id": "acme-liability-cap", "type": "paraphrase", "question": "Is there a cap on how much either party can be held responsible for?", "answers": [{"doc": "acme", "span": "twelve (12) months preceding the claim"}]}
+{"id": "acme-confidentiality-survival", "type": "cross_page", "question": "How long do confidentiality obligations last after the supply agreement ends?", "answers": [{"doc": "acme", "span": "three (3) years"}]}
+{"id": "acme-warranty", "type": "lookup", "question": "What warranty period applies to the components?", "answers": [{"doc": "acme", "span": "twelve (12) months from delivery"}]}
+{"id": "acme-delivery", "type": "lookup", "question": "Where are goods delivered and how quickly?", "answers": [{"doc": "acme", "span": "fourteen (14) Business Days"}]}
+{"id": "acme-jurisdiction", "type": "lookup", "question": "Which courts have jurisdiction over disputes with Acme?", "answers": [{"doc": "acme", "span": "courts at Chennai"}]}
+{"id": "acme-force-majeure-payment", "type": "paraphrase", "question": "Does a storm or other event outside our control excuse late payment?", "answers": [{"doc": "acme", "span": "does not excuse any obligation"}]}
+{"id": "acme-disputed-late-fee", "type": "cross_page", "question": "Does the late fee apply to invoices we are disputing?", "answers": [{"doc": "acme", "span": "amounts disputed in good faith"}]}
+{"id": "globex-monthly-fee", "type": "lookup", "question": "What is the monthly fee for Globex's services?", "answers": [{"doc": "globex", "span": "INR 4,50,000"}]}
+{"id": "globex-payment-period", "type": "lookup", "question": "How many days does the client have to pay a Globex invoice?", "answers": [{"doc": "globex", "span": "forty-five (45) days from the date of receipt"}]}
+{"id": "globex-late-interest", "type": "lookup", "question": "What interest rate applies to late amounts under the services agreement?", "answers": [{"doc": "globex", "span": "two percent (2%) per month"}]}
+{"id": "globex-interest-cap", "type": "paraphrase", "question": "Is there a maximum on interest charged for late payments to Globex?", "answers": [{"doc": "globex", "span": "eighteen percent (18%) per annum"}]}
+{"id": "globex-convenience-notice", "type": "lookup", "question": "How much notice is needed to terminate the Globex agreement for convenience?", "answers": [{"doc": "globex", "span": "for convenience on ninety (90) days"}]}
+{"id": "globex-onboarding-fee", "type": "table", "question": "What is the one-time onboarding fee?", "answers": [{"doc": "globex", "span": "INR 1,20,000"}]}
+{"id": "globex-termination-cost", "type": "lookup", "question": "What does it cost to terminate the services agreement early?", "answers": [{"doc": "globex", "span": "two (2) Monthly Fees"}]}
+{"id": "globex-price-increase", "type": "paraphrase", "question": "Can Globex raise its prices?", "answers": [{"doc": "globex", "span": "Consumer Price Index"}]}
+{"id": "globex-service-credit", "type": "paraphrase", "question": "What happens if the service provider's collections accuracy drops?", "answers": [{"doc": "globex", "span": "service credit of five percent (5%)"}]}
+{"id": "globex-confidentiality", "type": "lookup", "question": "How long must Globex keep our information confidential?", "answers": [{"doc": "globex", "span": "five (5) years after its termination"}]}
+{"id": "globex-data-law", "type": "lookup", "question": "Which data protection law must Globex follow?", "answers": [{"doc": "globex", "span": "Digital Personal Data Protection Act"}]}
+{"id": "globex-term", "type": "lookup", "question": "What is the term of the services agreement?", "answers": [{"doc": "globex", "span": "continues for three (3) years"}]}
+{"id": "globex-suspension", "type": "paraphrase", "question": "Can Globex stop working if we don't pay?", "answers": [{"doc": "globex", "span": "suspend the Services"}]}
+{"id": "globex-liability-cap", "type": "lookup", "question": "What is the limit on Globex's liability?", "answers": [{"doc": "globex", "span": "Monthly Fees paid in that contract year"}]}
+{"id": "globex-location", "type": "lookup", "question": "Where does Globex provide the services from?", "answers": [{"doc": "globex", "span": "offices in Bengaluru"}]}
+{"id": "multi-late-interest", "type": "multi_doc", "question": "What interest or late fees apply to overdue payments?", "answers": [{"doc": "acme", "span": "one and a half percent (1.5%)"}, {"doc": "globex", "span": "two percent (2%) per month"}]}
+{"id": "multi-convenience-notice", "type": "multi_doc", "question": "What notice period applies to terminating each agreement for convenience?", "answers": [{"doc": "acme", "span": "sixty (60) days"}, {"doc": "globex", "span": "for convenience on ninety (90) days"}]}
+{"id": "multi-jurisdiction", "type": "multi_doc", "question": "Which courts have jurisdiction under our contracts?", "answers": [{"doc": "acme", "span": "courts at Chennai"}, {"doc": "globex", "span": "courts at Bengaluru"}]}
+{"id": "multi-confidentiality", "type": "multi_doc", "question": "How long do confidentiality obligations survive termination?", "answers": [{"doc": "acme", "span": "three (3) years"}, {"doc": "globex", "span": "five (5) years after its termination"}]}
+{"id": "none-wifi", "type": "unanswerable", "question": "What is the office Wi-Fi password?", "answers": []}
+{"id": "none-ceo", "type": "unanswerable", "question": "Who is the CEO of Brightline Retail?", "answers": []}
+{"id": "none-late-delivery-penalty", "type": "unanswerable", "question": "What is the penalty for late delivery of components?", "answers": []}
+{"id": "none-non-compete", "type": "unanswerable", "question": "Does the Acme agreement include a non-compete clause?", "answers": []}
+{"id": "none-insurance", "type": "unanswerable", "question": "What insurance coverage must the supplier maintain?", "answers": []}
+{"id": "none-bank-account", "type": "unanswerable", "question": "What is Globex's bank account number for payments?", "answers": []}
+{"id": "none-headcount", "type": "unanswerable", "question": "How many employees does Globex have?", "answers": []}
+{"id": "none-assignment", "type": "unanswerable", "question": "Can either party assign the agreement to a third party?", "answers": []}
+{"id": "none-unit-price", "type": "unanswerable", "question": "What is the price per unit for the components?", "answers": []}
+{"id": "none-weather", "type": "unanswerable", "question": "What is the weather in Chennai today?", "answers": []}

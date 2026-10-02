@@ -1,0 +1,7 @@
+{
+  "version": 1,
+  "documents": {
+    "acme": "test/fixtures/documents/acme-supply-agreement.pdf",
+    "globex": "test/fixtures/documents/globex-services-agreement.pdf"
+  }
+}

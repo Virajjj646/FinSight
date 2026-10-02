@@ -4,6 +4,7 @@ import { logger } from "./lib/logger.js";
 import { registerShutdown } from "./lib/shutdown.js";
 import { pool } from "./infrastructure/db/index.js";
 import { documentQueue } from "./infrastructure/queue/document.queue.js";
+import { invoiceQueue } from "./infrastructure/queue/invoice.queue.js";
 import { redis } from "./infrastructure/redis/index.js";
 
 const server = app.listen(env.PORT, () => {
@@ -20,6 +21,7 @@ registerShutdown([
       }),
   ],
   ["document-queue", () => documentQueue.close()],
+  ["invoice-queue", () => invoiceQueue.close()],
   ["redis", () => redis.quit()],
   ["postgres", () => pool.end()],
 ]);

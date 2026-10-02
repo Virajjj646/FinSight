@@ -1,4 +1,4 @@
-import { invoiceQueue } from "./invoice.queue.js";
+import { invoiceQueue, MARK_OVERDUE_JOB } from "./invoice.queue.js";
 import { logger } from "../../lib/logger.js";
 
 export async function setupInvoiceSchedular(){
@@ -6,7 +6,7 @@ export async function setupInvoiceSchedular(){
         "mark-overdue-invoices",
         { pattern: "0 0 * * *"},
         {
-            name: "mark-overdue", 
+            name: MARK_OVERDUE_JOB, 
             data: {},
             opts: {
                 attempts: 3,

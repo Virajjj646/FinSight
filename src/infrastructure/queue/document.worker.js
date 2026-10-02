@@ -22,7 +22,7 @@ export function startDocumentWorker(){
     );
 
     worker.on("failed", (job, error) => {
-        logger.warn({ jobId: job?.id, attempt: job?.attemptsMade, err: error}, "document ingestion failed");
+        logger.warn("document ingestion failed", { jobId: job?.id, attempt: job?.attemptsMade, error: error.message });
     });
     return worker;
 }
