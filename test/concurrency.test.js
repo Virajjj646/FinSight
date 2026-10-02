@@ -136,10 +136,14 @@ test(
       const { token } = await registerAndLogin(baseUrl);
       const bank = await createAccount(baseUrl, token, { type: "ASSET" });
       const ar = await createAccount(baseUrl, token, { name: "Accounts Receivable", type: "ASSET" });
+      const revenue = await createAccount(baseUrl, token, { name: "Revenue", type: "REVENUE" });
       const invoice = await createInvoiceViaApi(baseUrl, token, {
         items: [{ description: "Service", quantity: 1, unitPriceMinor: "1000" }],
       });
-      await issueInvoiceViaApi(baseUrl, token, invoice.id);
+      await issueInvoiceViaApi(baseUrl, token, invoice.id, {
+        receivableAccountId: ar.id,
+        revenueAccountId: revenue.id,
+      });
 
       const request = api(baseUrl, token);
       const body = {
@@ -190,10 +194,14 @@ test(
       const { token } = await registerAndLogin(baseUrl);
       const bank = await createAccount(baseUrl, token, { type: "ASSET" });
       const ar = await createAccount(baseUrl, token, { name: "Accounts Receivable", type: "ASSET" });
+      const revenue = await createAccount(baseUrl, token, { name: "Revenue", type: "REVENUE" });
       const invoice = await createInvoiceViaApi(baseUrl, token, {
         items: [{ description: "Consulting", quantity: 1, unitPriceMinor: "10000" }],
       });
-      await issueInvoiceViaApi(baseUrl, token, invoice.id);
+      await issueInvoiceViaApi(baseUrl, token, invoice.id, {
+        receivableAccountId: ar.id,
+        revenueAccountId: revenue.id,
+      });
 
       const request = api(baseUrl, token);
       const responses = await Promise.all(
@@ -225,9 +233,10 @@ test(
       assert.equal(invoiceRes.body.paidAmountMinor, "10000", "paid total must equal exactly the invoice total");
 
       const balanceRes = await request("GET", `/api/ledger/accounts/${ar.id}/balance`);
-      // AR is an ASSET (debit-normal, reported raw). Each of the 10 payments
-      // credits AR by 1,000, so the raw sum is -10,000.
-      assert.equal(balanceRes.body.balanceMinor, "-10000", "the receivable account balance must match");
+      // AR is an ASSET (debit-normal, reported raw). Issuing debits AR by
+      // 10,000 and each of the 10 payments credits it by 1,000, so it nets to 0.
+      assert.equal(balanceRes.body.balanceMinor, "0", "a fully paid invoice must leave AR at zero");
+      assert.equal(balanceRes.body.lineCount, 11, "one issue line plus ten payment lines");
     } finally {
       await close();
     }
@@ -259,6 +268,10 @@ test(
       .insert(accounts)
       .values({ tenantId: tenant.id, name: "Accounts Receivable", type: "ASSET", currency: "USD" })
       .returning();
+    const [revenue] = await db
+      .insert(accounts)
+      .values({ tenantId: tenant.id, name: "Revenue", type: "REVENUE", currency: "USD" })
+      .returning();
 
     for (let i = 0; i < 20; i++) {
       const invoice = await createInvoice({
@@ -268,7 +281,7 @@ test(
         dueDate: new Date(Date.now() + 86400000).toISOString(),
         items: [{ description: "Widget", quantity: 1, unitPriceMinor: 100n }],
       });
-      await issueInvoice(invoice.id, tenant.id);
+      await issueInvoice(invoice.id, tenant.id, { receivableAccountId: ar.id, revenueAccountId: revenue.id });
 
       await Promise.allSettled([
         createInvoicePayment({
@@ -469,7 +482,7 @@ test(
       is404,
       "get must 404 across tenants"
     );
-    await assert.rejects(() => issueInvoice(invoiceA.id, tenantB.id), is404, "issue must 404 across tenants");
+    await assert.rejects(() => issueInvoice(invoiceA.id, tenantB.id, { receivableAccountId: arA.id, revenueAccountId: revenueA.id }), is404, "issue must 404 across tenants");
     await assert.rejects(
       () =>
         createInvoicePayment({

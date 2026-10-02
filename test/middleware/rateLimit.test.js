@@ -2,7 +2,7 @@ import { test, after } from "node:test";
 import assert from "node:assert/strict";
 import { randomUUID } from "node:crypto";
 import { rateLimit } from "../../src/middleware/rateLimit.js";
-import { consumeLlmBudget } from "../../src/modules/ask/llmBudget.js";
+import { consumeLlmBudget, secondsUntilUtcMidnight } from "../../src/modules/ask/llmBudget.js";
 import { redis } from "../../src/infrastructure/redis/index.js";
 
 after(async () => {
@@ -85,6 +85,26 @@ test("LLM budget: allows up to the limit per tenant per day, then 429", async ()
 
   await consumeLlmBudget(tenantB, { limit: 2 });
   await consumeLlmBudget(tenantA, { limit: 2, now: new Date(Date.now() + 86400000) });
+});
+
+test("secondsUntilUtcMidnight counts to the next UTC midnight", () => {
+  assert.equal(secondsUntilUtcMidnight(new Date("2026-10-03T00:00:00.000Z")), 86400);
+  assert.equal(secondsUntilUtcMidnight(new Date("2026-10-03T23:59:30.000Z")), 30);
+  assert.equal(secondsUntilUtcMidnight(new Date("2026-10-03T23:59:59.500Z")), 1);
+  assert.equal(secondsUntilUtcMidnight(new Date("2026-12-31T22:00:00.000Z")), 7200);
+});
+
+test("LLM budget exceeded carries retryAfterSec until the next UTC midnight", async () => {
+  const tenant = randomUUID();
+  const now = new Date("2026-10-03T21:30:15.000Z");
+
+  await consumeLlmBudget(tenant, { limit: 1, now });
+  await assert.rejects(consumeLlmBudget(tenant, { limit: 1, now }), (error) => {
+    assert.equal(error.status, 429);
+    assert.equal(error.code, "LLM_BUDGET_EXCEEDED");
+    assert.equal(error.retryAfterSec, 2 * 3600 + 29 * 60 + 45);
+    return true;
+  });
 });
 
 test("LLM budget fails open when Redis errors", async () => {

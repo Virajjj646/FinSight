@@ -13,6 +13,11 @@ export const createInvoiceSchema = z.object({
     ).min(1)
 });
 
+export const issueInvoiceSchema = z.object({
+    receivableAccountId: z.string().uuid(),
+    revenueAccountId: z.string().uuid(),
+});
+
 export const INVOICE_STATUSES = [ "DRAFT", "ISSUED", "PARTIALLY_PAID", "PAID", "OVERDUE", "VOID"];
 
 export const listInvoicesQuerySchema = z.object({

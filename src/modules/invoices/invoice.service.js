@@ -6,6 +6,7 @@ import { createJournalEntryTx } from "../ledger/ledger.service.js";
 import { AppError } from "../../lib/AppError.js";
 import { fingerprint } from "../../lib/idempotency.js";
 import { decodeSequenceCursor, encodeSequenceCursor } from "../../lib/cursor.js";
+import { serializePayment } from "../../lib/serialize.js";
 
 export async function createInvoice({tenantId, customerName, currency, dueDate, items}){
     if(!items||items.length===0) throw new AppError("Invoice must have atleast one item", 422, "INVALID_INVOICE");
@@ -42,15 +43,45 @@ export async function createInvoice({tenantId, customerName, currency, dueDate, 
     })
 }
 
-export async function issueInvoice(invoiceId, tenantId) {
+// Issuing recognises the receivable: debit AR, credit revenue, for the total.
+// Payments later credit AR, so a fully paid invoice nets AR back to zero.
+export async function issueInvoice(invoiceId, tenantId, { receivableAccountId, revenueAccountId } = {}) {
     return await db.transaction(async(tx) => {
         const [invoice] = await tx.select().from(invoices).where(and(eq(invoices.id,invoiceId), eq(invoices.tenantId,tenantId))).for("update").limit(1);
         if(!invoice) throw new AppError("Invoice not found", 404, "NOT_FOUND");
         assertTransition(invoice.status, "ISSUED");
 
+        const [receivableAccount] = await tx.select().from(accounts)
+            .where(and(eq(accounts.id, receivableAccountId), eq(accounts.tenantId, tenantId))).limit(1);
+        const [revenueAccount] = await tx.select().from(accounts)
+            .where(and(eq(accounts.id, revenueAccountId), eq(accounts.tenantId, tenantId))).limit(1);
+
+        if(!receivableAccount || !revenueAccount) throw new AppError("One or more accounts are invalid", 422, "INVALID_ACCOUNT");
+        if(receivableAccount.type !== "ASSET" || revenueAccount.type !== "REVENUE"){
+            throw new AppError("The receivable account must be an ASSET and the revenue account a REVENUE account", 422, "INVALID_ACCOUNT_TYPE");
+        }
+        if(receivableAccount.currency !== invoice.currency || revenueAccount.currency !== invoice.currency){
+            throw new AppError("Issue accounts must match the invoice currency", 422, "CURRENCY_MISMATCH");
+        }
+
+        const issueDate = new Date();
+        const { entry: journalEntry } = await createJournalEntryTx({
+            tx,
+            tenantId,
+            idempotencyKey: `invoice-issue:${invoice.id}`,
+            data: {
+                description: `Invoice ${invoice.invoiceNumber} issued`,
+                occurredAt: issueDate,
+                lines: [
+                    { accountId: receivableAccountId, amountMinor: invoice.totalAmountMinor },
+                    { accountId: revenueAccountId, amountMinor: -invoice.totalAmountMinor },
+                ],
+            },
+        });
+
         const[updatedInvoice] = await tx
             .update(invoices)
-            .set({status:"ISSUED", issueDate: new Date(), updatedAt: new Date() })
+            .set({status:"ISSUED", issueDate, issueJournalEntryId: journalEntry.id, updatedAt: issueDate })
             .where(and(eq(invoices.id,invoiceId), eq(invoices.tenantId,tenantId)))
             .returning();
 
@@ -351,7 +382,7 @@ export async function getInvoice({ tenantId, invoiceId}){
             unitPriceMinor: i.unitPriceMinor.toString(),
             lineTotalMinor: (i.unitPriceMinor * BigInt(i.quantity)).toString(),
         })),
-        payments: payments.map((p) => ({ ...p, amountMinor: p.amountMinor.toString()})),
+        payments: payments.map(serializePayment),
         statusHistory: history,
     };
 }

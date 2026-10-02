@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { createChatGenerator } from '../../src/infrastructure/llm/generator.js';
+import { createChatGenerator, getGenerator } from '../../src/infrastructure/llm/generator.js';
 import { AppError } from '../../src/lib/AppError.js';
 
 const ok = (content, extra = {}) =>
@@ -115,6 +115,28 @@ test('refuses to start without a base URL', () => {
     () => createChatGenerator({ apiKey: 'k', model: 'm' }),
     /FINSIGHT_LLM_BASE_URL/,
   );
+});
+
+test('getGenerator without LLM config is 503 LLM_NOT_CONFIGURED', () => {
+  for (const config of [
+    {},
+    { FINSIGHT_LLM_BASE_URL: 'https://api.groq.com/openai/v1' },
+    { FINSIGHT_LLM_API_KEY: 'k' },
+  ]) {
+    assert.throws(() => getGenerator({ FINSIGHT_LLM_MODEL: 'm', ...config }), {
+      status: 503,
+      code: 'LLM_NOT_CONFIGURED',
+    }, JSON.stringify(config));
+  }
+});
+
+test('getGenerator with LLM config builds a generator', () => {
+  const generate = getGenerator({
+    FINSIGHT_LLM_BASE_URL: 'https://api.groq.com/openai/v1',
+    FINSIGHT_LLM_API_KEY: 'k',
+    FINSIGHT_LLM_MODEL: 'm',
+  });
+  assert.equal(typeof generate, 'function');
 });
 
 test('429 retry waits for Retry-After (capped) before the second attempt', async () => {

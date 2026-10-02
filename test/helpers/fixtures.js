@@ -68,9 +68,11 @@ export async function createInvoice(baseUrl, token, overrides = {}) {
   );
 }
 
-export async function issueInvoice(baseUrl, token, id) {
+export async function issueInvoice(baseUrl, token, id, { receivableAccountId, revenueAccountId }) {
   return unwrap(
-    api(baseUrl, token)("POST", `/api/invoices/${id}/issue`),
+    api(baseUrl, token)("POST", `/api/invoices/${id}/issue`, {
+      body: { receivableAccountId, revenueAccountId },
+    }),
     "issueInvoice"
   );
 }

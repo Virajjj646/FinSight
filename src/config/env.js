@@ -32,6 +32,8 @@ const envSchema = z.object({
   RATE_LIMIT_LOGIN_PER_15MIN: z.coerce.number().int().positive().default(10),
   RATE_LIMIT_REGISTER_PER_HOUR: z.coerce.number().int().positive().default(5),
   RATE_LIMIT_UPLOAD_PER_HOUR: z.coerce.number().int().positive().default(30),
+  // POST /api/members per tenant per hour.
+  RATE_LIMIT_MEMBER_CREATE_PER_HOUR: z.coerce.number().int().positive().default(20),
   // LLM calls per tenant per UTC day. Abstentions before the LLM don't count.
   LLM_DAILY_BUDGET_PER_TENANT: z.coerce.number().int().positive().default(200),
 });

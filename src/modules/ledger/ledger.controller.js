@@ -1,4 +1,4 @@
-import { createJournalEntry, getAccountBalance, listEntries } from "./ledger.service.js";
+import { createJournalEntry, getAccountBalance, listAccountBalances, listEntries } from "./ledger.service.js";
 import { balanceQuerySchema, createJournalEntrySchema, idempotencyKeySchema, listEntriesQuerySchema } from "./ledger.schema.js";
 import { AppError } from "../../lib/AppError.js";
 import { serializeEntry } from "../../lib/serialize.js";
@@ -12,10 +12,7 @@ export async function createJournalEntryController(req, res, next){
             idempotencyKey,
             data
         });
-        res.status(replayed? 200 : 201).json({
-            ...entry,
-            lines: lines.map((line) => ({ ...line, amountMinor: line.amountMinor.toString() })),
-        });
+        res.status(replayed? 200 : 201).json(serializeEntry(entry, lines));
     }catch(error){ next(error); }
 }
 
@@ -52,5 +49,13 @@ export async function getAccountBalanceController(req, res, next){
         });
 
         res.json(balance);
+    }catch(error) { next(error); }
+}
+
+export async function listAccountBalancesController(req, res, next){
+    try{
+        const { asOf } = balanceQuerySchema.parse(req.query);
+        const data = await listAccountBalances({ tenantId: req.auth.tenantId, asOf });
+        res.json({ data });
     }catch(error) { next(error); }
 }

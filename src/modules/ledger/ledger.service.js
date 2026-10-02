@@ -146,16 +146,59 @@ export async function getAccountBalance({ tenantId, accountId, asOf }) {
       ${asOf ? sql`AND je.occurred_at <= ${asOf}` : sql``}
   `);
 
-  const raw = BigInt(rows[0].raw_balance);
-  const creditNormal = ["LIABILITY", "EQUITY", "REVENUE"].includes(account.type);
-
   return {
     accountId: account.id,
     name: account.name,
     type: account.type,
     currency: account.currency,
     asOf: asOf ?? null,
-    balanceMinor: (creditNormal ? -raw : raw).toString(),
+    balanceMinor: signedBalance(account.type, BigInt(rows[0].raw_balance)).toString(),
     lineCount: rows[0].line_count,
   };
+}
+
+const CREDIT_NORMAL_TYPES = new Set(["LIABILITY", "EQUITY", "REVENUE"]);
+
+// Lines are stored debit-positive. Credit-normal accounts report the negated
+// sum so a healthy liability, equity or revenue balance reads positive.
+export function signedBalance(type, rawMinor) {
+  return CREDIT_NORMAL_TYPES.has(type) ? -rawMinor : rawMinor;
+}
+
+// Every account in the tenant with its balance, in one query, ordered like
+// GET /api/accounts. The journal_entries join sits inside the LEFT JOIN so an
+// account whose lines all fall after asOf still comes back with "0".
+export async function listAccountBalances({ tenantId, asOf }) {
+  const lines = asOf
+    ? sql`(entry_lines el
+          JOIN journal_entries je
+            ON je.id = el.entry_id
+           AND je.tenant_id = el.tenant_id
+           AND je.occurred_at <= ${asOf})`
+    : sql`entry_lines el`;
+
+  const { rows } = await db.execute(sql`
+    SELECT a.id AS account_id,
+           a.name,
+           a.type,
+           a.currency,
+           COALESCE(SUM(el.amount_minor), 0)::text AS raw_balance,
+           COUNT(el.id)::int AS line_count
+    FROM accounts a
+    LEFT JOIN ${lines}
+      ON el.account_id = a.id
+     AND el.tenant_id = a.tenant_id
+    WHERE a.tenant_id = ${tenantId}
+    GROUP BY a.id, a.name, a.type, a.currency
+    ORDER BY a.type ASC, a.name ASC
+  `);
+
+  return rows.map((row) => ({
+    accountId: row.account_id,
+    name: row.name,
+    type: row.type,
+    currency: row.currency,
+    balanceMinor: signedBalance(row.type, BigInt(row.raw_balance)).toString(),
+    lineCount: row.line_count,
+  }));
 }

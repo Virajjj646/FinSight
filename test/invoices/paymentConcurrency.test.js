@@ -32,6 +32,10 @@ test(
       .insert(accounts)
       .values({ tenantId: tenant.id, name: "Accounts Receivable", type: "ASSET", currency: "USD" })
       .returning();
+    const [revenue] = await db
+      .insert(accounts)
+      .values({ tenantId: tenant.id, name: "Revenue", type: "REVENUE", currency: "USD" })
+      .returning();
 
     const draftInvoice = await createInvoice({
       tenantId: tenant.id,
@@ -41,7 +45,7 @@ test(
       // total = 1000 minor units; 50 payments of 30 each (1500) oversubscribe it on purpose.
       items: [{ description: "Service", quantity: 1000, unitPriceMinor: 1n }],
     });
-    await issueInvoice(draftInvoice.id, tenant.id);
+    await issueInvoice(draftInvoice.id, tenant.id, { receivableAccountId: ar.id, revenueAccountId: revenue.id });
 
     const PAYMENT_AMOUNT = 30n;
     const attempts = Array.from({ length: 50 }, (_, i) =>

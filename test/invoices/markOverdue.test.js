@@ -9,22 +9,35 @@ if (testDbAvailable) {
   process.env.DATABASE_URL = process.env.DATABASE_URL_TEST;
 }
 
+async function issueAccounts(db, accounts, tenantId) {
+  const [ar] = await db
+    .insert(accounts)
+    .values({ tenantId, name: "Accounts Receivable", type: "ASSET", currency: "USD" })
+    .returning();
+  const [revenue] = await db
+    .insert(accounts)
+    .values({ tenantId, name: "Revenue", type: "REVENUE", currency: "USD" })
+    .returning();
+  return { ar, revenue };
+}
+
 async function loadDeps() {
   const { db } = await import("../../src/infrastructure/db/index.js");
-  const { tenants, invoices } = await import("../../src/infrastructure/db/schema.js");
+  const { tenants, invoices, accounts } = await import("../../src/infrastructure/db/schema.js");
   const { eq } = await import("drizzle-orm");
   const { createInvoice, issueInvoice, markOverdueInvoices } = await import(
     "../../src/modules/invoices/invoice.service.js"
   );
-  return { db, tenants, invoices, eq, createInvoice, issueInvoice, markOverdueInvoices };
+  return { db, tenants, invoices, accounts, eq, createInvoice, issueInvoice, markOverdueInvoices };
 }
 
 test("markOverdueInvoices flips past-due ISSUED invoices to OVERDUE", { skip }, async () => {
-  const { db, tenants, createInvoice, issueInvoice, markOverdueInvoices } = await loadDeps();
+  const { db, tenants, accounts, createInvoice, issueInvoice, markOverdueInvoices } = await loadDeps();
 
   await truncateAll();
 
   const [tenant] = await db.insert(tenants).values({ name: "Acme Co" }).returning();
+  const { ar, revenue } = await issueAccounts(db, accounts, tenant.id);
 
   const invoice = await createInvoice({
     tenantId: tenant.id,
@@ -33,7 +46,7 @@ test("markOverdueInvoices flips past-due ISSUED invoices to OVERDUE", { skip }, 
     dueDate: new Date(Date.now() - 86400000).toISOString(),
     items: [{ description: "Widget", quantity: 1, unitPriceMinor: 100n }],
   });
-  await issueInvoice(invoice.id, tenant.id);
+  await issueInvoice(invoice.id, tenant.id, { receivableAccountId: ar.id, revenueAccountId: revenue.id });
 
   const updated = await markOverdueInvoices();
 
@@ -43,11 +56,12 @@ test("markOverdueInvoices flips past-due ISSUED invoices to OVERDUE", { skip }, 
 });
 
 test("markOverdueInvoices must not resurrect a concurrently voided invoice", { skip }, async () => {
-  const { db, tenants, invoices, eq, createInvoice, issueInvoice, markOverdueInvoices } = await loadDeps();
+  const { db, tenants, invoices, accounts, eq, createInvoice, issueInvoice, markOverdueInvoices } = await loadDeps();
 
   await truncateAll();
 
   const [tenant] = await db.insert(tenants).values({ name: "Acme Co" }).returning();
+  const { ar, revenue } = await issueAccounts(db, accounts, tenant.id);
 
   const invoice = await createInvoice({
     tenantId: tenant.id,
@@ -56,7 +70,7 @@ test("markOverdueInvoices must not resurrect a concurrently voided invoice", { s
     dueDate: new Date(Date.now() - 86400000).toISOString(),
     items: [{ description: "Widget", quantity: 1, unitPriceMinor: 100n }],
   });
-  await issueInvoice(invoice.id, tenant.id);
+  await issueInvoice(invoice.id, tenant.id, { receivableAccountId: ar.id, revenueAccountId: revenue.id });
 
   // Hold a row lock so we control exactly when markOverdueInvoices' inner UPDATE
   // is allowed to see the row: it will block until we commit the VOID below,

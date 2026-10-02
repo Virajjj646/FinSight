@@ -47,6 +47,15 @@ before(async () => {
     embedding: new Array(EMBEDDING_DIMENSIONS).fill(1 / Math.sqrt(EMBEDDING_DIMENSIONS)),
     embeddingModel: EMBEDDING_MODEL,
   });
+
+  // Tenant B also has a document mid-ingestion. If the status check leaked
+  // across tenants, A would get documents_processing instead of no_documents.
+  await db.insert(documents).values({
+    tenantId: tenantB.tenantId,
+    title: 'tenant-b-processing.pdf',
+    status: 'processing',
+    contentSha256: randomBytes(32).toString('hex'),
+  });
 });
 
 after(async () => {
@@ -62,8 +71,8 @@ test("tenant A's /ask never retrieves tenant B's documents", async () => {
 
   assert.equal(res.status, 200);
   assert.equal(res.body.abstained, true);
-  // no_documents means retrieval returned nothing for A. Any other reason, or
-  // an answer, would mean B's chunk reached A's retrieval.
+  // no_documents means retrieval returned nothing for A and B's processing
+  // document didn't count for A. Any other reason, or an answer, is a leak.
   assert.equal(res.body.reason, 'no_documents');
   assert.deepEqual(res.body.citations, []);
 });

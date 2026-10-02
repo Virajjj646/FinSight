@@ -1,4 +1,4 @@
-import { and, asc, cosineDistance, eq } from 'drizzle-orm';
+import { and, asc, cosineDistance, eq, inArray } from 'drizzle-orm';
 import { db } from '../../../infrastructure/db/index.js';
 import { documentChunks, documents, EMBEDDING_DIMENSIONS } from '../../../infrastructure/db/schema.js';
 import { embedQuery } from '../ingest/embed.js';
@@ -51,4 +51,16 @@ export async function retrieveChunks({tenantId, question, k} , deps = {}) {
     if(!q) throw new Error('question must be non-empty string');
     const vector = await embedQuery(q);
     return searchChunks({ tenantId, vector, k}, deps);
+}
+
+// True when the tenant has documents still on their way to 'ready', i.e.
+// retrieval may come back empty only because ingestion hasn't finished.
+export async function hasDocumentsInProgress({ tenantId }, { database = db } = {}) {
+    if(!tenantId) throw new Error ('tenantId is required');
+    const rows = await database
+        .select({ id: documents.id })
+        .from(documents)
+        .where(and(eq(documents.tenantId, tenantId), inArray(documents.status, ['pending', 'processing'])))
+        .limit(1);
+    return rows.length > 0;
 }

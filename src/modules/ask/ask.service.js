@@ -1,4 +1,4 @@
-import { retrieveChunks } from '../documents/retrieval/retrieve.js';
+import { retrieveChunks, hasDocumentsInProgress } from '../documents/retrieval/retrieve.js';
 import { getGenerator } from '../../infrastructure/llm/generator.js';
 import { logger } from '../../lib/logger.js';
 import { buildPrompt } from './ask.prompt.js';
@@ -15,7 +15,13 @@ export async function askQuestion(
   { tenantId, question, k = ASK_DEFAULT_K },
   {
     retrieve = retrieveChunks,
+    // Only consulted when retrieval is empty, to tell "nothing uploaded" from
+    // "uploaded but not ingested yet".
+    documentsInProgress = hasDocumentsInProgress,
     generate,
+    // Resolves the model client when `generate` isn't given. Throws 503
+    // LLM_NOT_CONFIGURED without LLM env; only reached past the abstentions.
+    loadGenerator = getGenerator,
     minScore = ASK_MIN_SCORE,
     log = logger,
     // Called once per LLM call, so abstentions before the model are free.
@@ -54,12 +60,16 @@ export async function askQuestion(
   const abstain = (reason) =>
     finish({ abstained: true, reason, answer: ABSTAIN_MESSAGE, citations: [] });
 
-  if (chunks.length === 0) return abstain('no_documents');
+  if (chunks.length === 0) {
+    return abstain((await documentsInProgress({ tenantId })) ? 'documents_processing' : 'no_documents');
+  }
   if (topScore < minScore) return abstain('below_score_floor');
 
   const { system, prompt, used } = buildPrompt(question, chunks);
+  // Resolve the model before spending budget, so a missing config costs nothing.
+  const generateAnswer = generate ?? loadGenerator();
   await consumeLlmBudget(tenantId);
-  const generation = await (generate ?? getGenerator())({ system, prompt });
+  const generation = await generateAnswer({ system, prompt });
   trace.model = generation.model;
   trace.llmLatencyMs = generation.latencyMs;
 

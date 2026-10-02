@@ -14,10 +14,13 @@ export const documentQueue = new Queue(DOCUMENT_QUEUE, {
     },
 });
 
-export function enqueueIngestion({ documentId, tenantId }){
+// The default jobId dedupes repeat uploads of one document. BullMQ ignores an
+// add whose jobId still exists (failed jobs are kept), so a retry must pass
+// its own jobId.
+export function enqueueIngestion({ documentId, tenantId }, { jobId = `ingest-${documentId}` } = {}){
     return documentQueue.add(
         INGEST_DOCUMENT_JOB,
         { documentId, tenantId },
-        { jobId: `ingest-${documentId}`},
+        { jobId },
     )
 }

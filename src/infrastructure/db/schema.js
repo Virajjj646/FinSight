@@ -83,6 +83,8 @@ export const invoices = pgTable("invoices",{
   issueDate: timestamp("issue_date", { withTimezone: true }),
   dueDate: timestamp("due_date", { withTimezone: true }),
   totalAmountMinor: bigint("total_amount_minor",{ mode: "bigint"}).notNull().default("0"),
+  // The receivable posted when the invoice was issued (debit AR, credit revenue).
+  issueJournalEntryId: uuid("issue_journal_entry_id").references(() => journalEntries.id),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull()
 },

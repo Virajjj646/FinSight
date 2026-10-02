@@ -58,6 +58,10 @@ test(
       .insert(accounts)
       .values({ tenantId: tenant.id, name: "Accounts Receivable", type: "ASSET", currency: "USD" })
       .returning();
+    const [revenue] = await db
+      .insert(accounts)
+      .values({ tenantId: tenant.id, name: "Revenue", type: "REVENUE", currency: "USD" })
+      .returning();
 
     for (let i = 0; i < 20; i++) {
       const invoice = await createInvoice({
@@ -67,7 +71,7 @@ test(
         dueDate: new Date(Date.now() + 86400000).toISOString(),
         items: [{ description: "Widget", quantity: 1, unitPriceMinor: 100n }],
       });
-      await issueInvoice(invoice.id, tenant.id);
+      await issueInvoice(invoice.id, tenant.id, { receivableAccountId: ar.id, revenueAccountId: revenue.id });
 
       const [paymentResult, voidResult] = await Promise.allSettled([
         createInvoicePayment({
@@ -139,6 +143,10 @@ test("voidInvoice rejects an invoice that has payments recorded", { skip }, asyn
     .insert(accounts)
     .values({ tenantId: tenant.id, name: "Accounts Receivable", type: "ASSET", currency: "USD" })
     .returning();
+  const [revenue] = await db
+    .insert(accounts)
+    .values({ tenantId: tenant.id, name: "Revenue", type: "REVENUE", currency: "USD" })
+    .returning();
 
   const invoice = await createInvoice({
     tenantId: tenant.id,
@@ -147,7 +155,7 @@ test("voidInvoice rejects an invoice that has payments recorded", { skip }, asyn
     dueDate: new Date(Date.now() + 86400000).toISOString(),
     items: [{ description: "Widget", quantity: 3, unitPriceMinor: 100n }],
   });
-  await issueInvoice(invoice.id, tenant.id);
+  await issueInvoice(invoice.id, tenant.id, { receivableAccountId: ar.id, revenueAccountId: revenue.id });
 
   await createInvoicePayment({
     invoiceId: invoice.id,

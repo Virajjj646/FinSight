@@ -58,6 +58,12 @@ export function errorHandler(err, req, res, next) {
       });
     }
 
+    // Errors that know when the client may retry (e.g. LLM_BUDGET_EXCEEDED)
+    // carry retryAfterSec. RATE_LIMITED sets the header itself in rateLimit.js.
+    if (err instanceof AppError && Number.isFinite(err.retryAfterSec)) {
+      res.setHeader("Retry-After", String(err.retryAfterSec));
+    }
+
     const body = { error: message, code, requestId };
     if (err instanceof ZodError) {
       body.details = err.issues.map((issue) => ({

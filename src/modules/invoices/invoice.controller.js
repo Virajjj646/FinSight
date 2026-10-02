@@ -1,8 +1,8 @@
-import { createInvoiceSchema, listInvoicesQuerySchema } from "./invoice.schema.js";
+import { createInvoiceSchema, issueInvoiceSchema, listInvoicesQuerySchema } from "./invoice.schema.js";
 import { createInvoice , issueInvoice, createInvoicePayment, voidInvoice, listInvoices, getInvoice} from "./invoice.service.js";
 import { createInvoicePaymentSchema } from "./invoice.payment.schema.js";
 import { idempotencyKeySchema } from "../../lib/idempotency.js";
-import { serializeInvoice } from "../../lib/serialize.js";
+import { serializeInvoice, serializeJournalEntry, serializePayment } from "../../lib/serialize.js";
 
 export async function createInvoiceController(req,res, next){
     try{
@@ -16,7 +16,8 @@ export async function createInvoiceController(req,res, next){
 
 export async function issueInvoiceController(req,res, next){
     try{
-        const invoice = await issueInvoice(req.params.id, req.auth.tenantId);
+        const accounts = issueInvoiceSchema.parse(req.body ?? {});
+        const invoice = await issueInvoice(req.params.id, req.auth.tenantId, accounts);
         res.status(200).json(serializeInvoice(invoice));
     }catch(error){
         next(error);
@@ -30,9 +31,9 @@ export async function createInvoicePaymentController(req, res, next){
         const data = createInvoicePaymentSchema.parse(req.body);
         const { payment, invoice, journalEntry, replayed} = await createInvoicePayment({invoiceId: req.params.id, tenantId: req.auth.tenantId, idempotencyKey, ...data});
         res.status(replayed? 200 : 201).json({
-            payment: { ...payment, amountMinor: payment.amountMinor.toString() },
+            payment: serializePayment(payment),
             invoice: serializeInvoice(invoice),
-            journalEntry
+            journalEntry: serializeJournalEntry(journalEntry)
         });
     }catch(error){
         next(error);

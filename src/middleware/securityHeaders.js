@@ -20,7 +20,7 @@ export function securityHeaders(req, res, next) {
 
 const ALLOWED_METHODS = "GET,POST,DELETE,OPTIONS";
 const ALLOWED_HEADERS = "Authorization,Content-Type,Idempotency-Key";
-const EXPOSED_HEADERS = "Location,Retry-After";
+const EXPOSED_HEADERS = "Location,Retry-After,Content-Disposition";
 
 // CORS with an exact-match origin allowlist. Auth is a bearer header, not a
 // cookie, so credentials are never allowed. Other origins get no CORS headers,

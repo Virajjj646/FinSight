@@ -10,18 +10,23 @@ const BCRYPT_COST = 12;
 
 const DUMMY_PASSWORD_HASH = await bcrypt.hash("finsight-dummy-password-for-timing-safety", BCRYPT_COST);
 
-function toPublicUser(user) {
+// Shared with members.service.js so every user is created the same way.
+export function toPublicUser(user) {
   const { passwordHash, ...publicUser } = user;
   return publicUser;
 }
 
-function normalizeEmail(email) {
+export function normalizeEmail(email) {
   return email.trim().toLowerCase();
+}
+
+export function hashPassword(password) {
+  return bcrypt.hash(password, BCRYPT_COST);
 }
 
 export async function registerUser({ name, email, password, tenantName }) {
   const normalizedEmail = normalizeEmail(email);
-  const passwordHash = await bcrypt.hash(password, BCRYPT_COST);
+  const passwordHash = await hashPassword(password);
 
   return await db.transaction(async (tx) => {
     const [tenant] = await tx.insert(tenants).values({ name: tenantName }).returning();

@@ -5,19 +5,23 @@ import { ingestDocument, markDocumentsFailed } from "../../modules/documents/doc
 import { logger } from "../../lib/logger.js";
 import { UnextractableDocumentError } from "../../modules/documents/ingest/extract.js";
 
+// A job whose document was deleted is a no-op: the claim in ingestDocument
+// matches no row and returns { skipped: true }.
+export async function processDocumentJob(job){
+    try{
+        return await ingestDocument(job.data);
+    }catch(error){
+        const permanent = error instanceof UnextractableDocumentError;
+        const isFinalAttempt = permanent || job.attemptsMade + 1 >= (job.opts.attempts ?? 1);
+        if(isFinalAttempt) await markDocumentsFailed({ ...job.data, error});
+        throw permanent ? new UnrecoverableError(error.message) : error;
+    }
+}
+
 export function startDocumentWorker(){
     const worker = new Worker(
         DOCUMENT_QUEUE,
-        async (job) => {
-            try{
-                return await ingestDocument(job.data);
-            }catch(error){
-                const permanent = error instanceof UnextractableDocumentError;
-                const isFinalAttempt = permanent || job.attemptsMade + 1 >= (job.opts.attempts ?? 1);
-                if(isFinalAttempt) await markDocumentsFailed({ ...job.data, error});
-                throw permanent ? new UnrecoverableError(error.message) : error;
-            }
-        },
+        processDocumentJob,
         { connection: redis, concurrency: 1 },
     );
 

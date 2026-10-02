@@ -26,6 +26,10 @@ test("createInvoicePayment records a payment end to end and stamps updatedAt", {
     .insert(accounts)
     .values({ tenantId: tenant.id, name: "Accounts Receivable", type: "ASSET", currency: "USD" })
     .returning();
+  const [revenue] = await db
+    .insert(accounts)
+    .values({ tenantId: tenant.id, name: "Revenue", type: "REVENUE", currency: "USD" })
+    .returning();
 
   const invoice = await createInvoice({
     tenantId: tenant.id,
@@ -34,7 +38,7 @@ test("createInvoicePayment records a payment end to end and stamps updatedAt", {
     dueDate: new Date(Date.now() + 86400000).toISOString(),
     items: [{ description: "Widget", quantity: 2, unitPriceMinor: 500n }],
   });
-  await issueInvoice(invoice.id, tenant.id);
+  await issueInvoice(invoice.id, tenant.id, { receivableAccountId: ar.id, revenueAccountId: revenue.id });
 
   const result = await createInvoicePayment({
     invoiceId: invoice.id,

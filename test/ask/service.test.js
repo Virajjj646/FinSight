@@ -1,6 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { AppError } from '../../src/lib/AppError.js';
+import { getGenerator } from '../../src/infrastructure/llm/generator.js';
 import {
   askQuestion,
   ABSTAIN_MESSAGE,
@@ -37,8 +38,13 @@ const generateReturning = (text) => {
   return fn;
 };
 
+const noneInProgress = async () => false;
+
 const ask = (deps, k) =>
-  askQuestion({ tenantId: 't1', question: 'What is the late fee?', k }, { log: silent, ...deps });
+  askQuestion(
+    { tenantId: 't1', question: 'What is the late fee?', k },
+    { log: silent, documentsInProgress: noneInProgress, ...deps },
+  );
 
 test('answers with mapped citations and passes tenant, question and k to retrieval', async () => {
   const retrieve = retrieveReturning([chunk(1, 0.8), chunk(2, 0.7)]);
@@ -63,6 +69,47 @@ test('no chunks: abstains without calling the model', async () => {
     { abstained: true, reason: 'no_documents', answer: ABSTAIN_MESSAGE, citations: [] },
   );
   assert.equal(generate.calls.length, 0);
+});
+
+const inProgressRecorder = (result) => {
+  const fn = async (args) => {
+    fn.calls.push(args);
+    return result;
+  };
+  fn.calls = [];
+  return fn;
+};
+
+test('no chunks with documents pending or processing: abstains with documents_processing', async () => {
+  const generate = generateReturning('unused');
+  const consumeLlmBudget = budgetRecorder();
+  const documentsInProgress = inProgressRecorder(true);
+  const r = await ask({ retrieve: retrieveReturning([]), generate, consumeLlmBudget, documentsInProgress });
+  assert.deepEqual(
+    { abstained: r.abstained, reason: r.reason, answer: r.answer, citations: r.citations },
+    { abstained: true, reason: 'documents_processing', answer: ABSTAIN_MESSAGE, citations: [] },
+  );
+  assert.deepEqual(documentsInProgress.calls, [{ tenantId: 't1' }]);
+  assert.equal(generate.calls.length, 0);
+  assert.equal(consumeLlmBudget.calls.length, 0);
+});
+
+test('no chunks and nothing in progress: abstains with no_documents', async () => {
+  const documentsInProgress = inProgressRecorder(false);
+  const r = await ask({ retrieve: retrieveReturning([]), documentsInProgress });
+  assert.equal(r.reason, 'no_documents');
+  assert.equal(documentsInProgress.calls.length, 1);
+});
+
+test('document status is only checked when retrieval is empty', async () => {
+  const documentsInProgress = inProgressRecorder(true);
+  await ask({ retrieve: retrieveReturning([chunk(1, ASK_MIN_SCORE - 0.01)]), documentsInProgress });
+  await ask({
+    retrieve: retrieveReturning([chunk(1, 0.7)]),
+    generate: generateReturning('Yes [1].'),
+    documentsInProgress,
+  });
+  assert.equal(documentsInProgress.calls.length, 0);
 });
 
 test('top score below the floor: abstains without calling the model', async () => {
@@ -142,6 +189,27 @@ test('exhausted LLM budget propagates and skips the model', async () => {
   assert.equal(generate.calls.length, 0);
 });
 
+const unconfigured = () => getGenerator({});
+
+test('missing LLM config is 503 LLM_NOT_CONFIGURED and spends no budget', async () => {
+  const consumeLlmBudget = budgetRecorder();
+  await assert.rejects(
+    ask({ retrieve: retrieveReturning([chunk(1, 0.7)]), loadGenerator: unconfigured, consumeLlmBudget }),
+    { status: 503, code: 'LLM_NOT_CONFIGURED' },
+  );
+  assert.equal(consumeLlmBudget.calls.length, 0);
+});
+
+test('abstentions before the model work without LLM config', async () => {
+  const noDocs = await ask({ retrieve: retrieveReturning([]), loadGenerator: unconfigured });
+  assert.equal(noDocs.reason, 'no_documents');
+  const lowScore = await ask({
+    retrieve: retrieveReturning([chunk(1, ASK_MIN_SCORE - 0.01)]),
+    loadGenerator: unconfigured,
+  });
+  assert.equal(lowScore.reason, 'below_score_floor');
+});
+
 test('logs one line per ask with the decision and retrieval scores', async () => {
   const lines = [];
   await askQuestion(
@@ -149,6 +217,7 @@ test('logs one line per ask with the decision and retrieval scores', async () =>
     {
       retrieve: retrieveReturning([chunk(1, 0.7)]),
       generate: generateReturning('Yes [1].'),
+      documentsInProgress: noneInProgress,
       log: { info: (message, fields) => lines.push({ message, fields }) },
     },
   );

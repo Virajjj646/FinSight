@@ -41,6 +41,12 @@ test("CORS: allowlisted origin gets Access-Control-Allow-Origin", async () => {
   assert.match(res.headers.get("vary"), /Origin/);
 });
 
+test("CORS: exposes Location, Retry-After and Content-Disposition", async () => {
+  const res = await fetch(`${server.baseUrl}/health`, { headers: { Origin: ALLOWED } });
+  const exposed = res.headers.get("access-control-expose-headers").split(",");
+  assert.deepEqual(exposed.sort(), ["Content-Disposition", "Location", "Retry-After"]);
+});
+
 test("CORS: other origins get no CORS headers", async () => {
   const res = await fetch(`${server.baseUrl}/health`, { headers: { Origin: "http://evil.example" } });
   assert.equal(res.headers.get("access-control-allow-origin"), null);

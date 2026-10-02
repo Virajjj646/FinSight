@@ -14,6 +14,7 @@ import { embedTexts } from '../../src/modules/documents/ingest/embed.js';
 import {
   searchChunks,
   retrieveChunks,
+  hasDocumentsInProgress,
   MAX_K,
 } from '../../src/modules/documents/retrieval/retrieve.js';
 
@@ -102,9 +103,35 @@ test('only searches documents with status ready', async () => {
   assert.deepEqual(results.map((r) => r.content), ['ready chunk']);
 });
 
+test('hasDocumentsInProgress is true only for pending or processing documents', async () => {
+  const empty = await newTenant();
+  assert.equal(await hasDocumentsInProgress({ tenantId: empty }), false);
+
+  const settled = await newTenant();
+  await insertDoc(settled, { status: 'ready' });
+  await insertDoc(settled, { status: 'failed' });
+  assert.equal(await hasDocumentsInProgress({ tenantId: settled }), false);
+
+  const pending = await newTenant();
+  await insertDoc(pending, { status: 'pending' });
+  assert.equal(await hasDocumentsInProgress({ tenantId: pending }), true);
+
+  const processing = await newTenant();
+  await insertDoc(processing, { status: 'processing' });
+  assert.equal(await hasDocumentsInProgress({ tenantId: processing }), true);
+});
+
+test('hasDocumentsInProgress ignores other tenants', async () => {
+  const mine = await newTenant();
+  const other = await newTenant();
+  await insertDoc(other, { status: 'processing' });
+  assert.equal(await hasDocumentsInProgress({ tenantId: mine }), false);
+});
+
 test('rejects bad input before touching the DB', async () => {
   await assert.rejects(searchChunks({ tenantId: randomUUID(), vector: [1, 0] }), /dimensions/);
   await assert.rejects(searchChunks({ vector: unit(0) }), /tenantId/);
+  await assert.rejects(hasDocumentsInProgress({}), /tenantId/);
   await assert.rejects(retrieveChunks({ tenantId: randomUUID(), question: '   ' }), /non-empty/);
 });
 

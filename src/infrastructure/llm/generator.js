@@ -92,12 +92,20 @@ export function createChatGenerator({
 
 let defaultGenerator;
 
-export function getGenerator() {
-  if (!env.FINSIGHT_LLM_BASE_URL) throw new Error('FINSIGHT_LLM_BASE_URL is not set');
-  defaultGenerator ??= createChatGenerator({
-    apiKey: env.FINSIGHT_LLM_API_KEY,
-    model: env.FINSIGHT_LLM_MODEL,
-    baseUrl: env.FINSIGHT_LLM_BASE_URL,
-  });
+// The default generator from env. Missing LLM config is a deployment problem,
+// not a bug, so it surfaces as 503 LLM_NOT_CONFIGURED rather than a 500.
+// `config` is injectable for tests; only the env-backed generator is cached.
+export function getGenerator(config = env) {
+  if (!config.FINSIGHT_LLM_BASE_URL || !config.FINSIGHT_LLM_API_KEY) {
+    throw new AppError('The answer service is not configured', 503, 'LLM_NOT_CONFIGURED');
+  }
+  const build = () =>
+    createChatGenerator({
+      apiKey: config.FINSIGHT_LLM_API_KEY,
+      model: config.FINSIGHT_LLM_MODEL,
+      baseUrl: config.FINSIGHT_LLM_BASE_URL,
+    });
+  if (config !== env) return build();
+  defaultGenerator ??= build();
   return defaultGenerator;
 }

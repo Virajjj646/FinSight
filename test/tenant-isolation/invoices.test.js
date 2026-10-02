@@ -35,6 +35,10 @@ test("tenant B cannot issue, pay, or void tenant A's invoice", { skip }, async (
     .insert(accounts)
     .values({ tenantId: tenantA.id, name: "Accounts Receivable", type: "ASSET", currency: "USD" })
     .returning();
+  const [revenueA] = await db
+    .insert(accounts)
+    .values({ tenantId: tenantA.id, name: "Revenue", type: "REVENUE", currency: "USD" })
+    .returning();
 
   const invoiceA = await createInvoice({
     tenantId: tenantA.id,
@@ -45,7 +49,7 @@ test("tenant B cannot issue, pay, or void tenant A's invoice", { skip }, async (
   });
 
   await assert.rejects(
-    () => issueInvoice(invoiceA.id, tenantB.id),
+    () => issueInvoice(invoiceA.id, tenantB.id, { receivableAccountId: arA.id, revenueAccountId: revenueA.id }),
     (error) => error.status === 404,
     "tenant B issuing tenant A's invoice must 404"
   );
@@ -73,7 +77,7 @@ test("tenant B cannot issue, pay, or void tenant A's invoice", { skip }, async (
   const [unchanged] = await db.select().from(invoices).where(eq(invoices.id, invoiceA.id));
   assert.equal(unchanged.status, "DRAFT", "tenant A's invoice must be untouched by tenant B's attempts");
 
-  const issued = await issueInvoice(invoiceA.id, tenantA.id);
+  const issued = await issueInvoice(invoiceA.id, tenantA.id, { receivableAccountId: arA.id, revenueAccountId: revenueA.id });
   assert.equal(issued.status, "ISSUED", "tenant A can still issue its own invoice");
 });
 

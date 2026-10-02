@@ -5,6 +5,9 @@ import { registerAndLogin } from '../helpers/fixtures.js';
 import { api } from '../helpers/api.js';
 import { truncateAll } from '../helpers/db.js';
 import { closeTestResources } from '../helpers/teardown.js';
+import { randomBytes } from 'node:crypto';
+import { db } from '../../src/infrastructure/db/index.js';
+import { documents } from '../../src/infrastructure/db/schema.js';
 
 let server;
 let user;
@@ -50,4 +53,34 @@ test('tenant with no documents gets an abstention and no trace leaks', async () 
   assert.equal(res.body.abstained, true);
   assert.equal(res.body.reason, 'no_documents');
   assert.deepEqual(res.body.citations, []);
+});
+
+const insertDocument = (tenantId, status) =>
+  db.insert(documents).values({
+    tenantId,
+    title: `${status}.pdf`,
+    status,
+    contentSha256: randomBytes(32).toString('hex'),
+  });
+
+for (const status of ['pending', 'processing']) {
+  test(`tenant whose only document is ${status} gets documents_processing`, async () => {
+    const owner = await registerAndLogin(server.baseUrl);
+    await insertDocument(owner.tenantId, status);
+
+    const res = await ask({ question: 'What is the late fee?' }, owner.token);
+    assert.equal(res.status, 200);
+    assert.equal(res.body.abstained, true);
+    assert.equal(res.body.reason, 'documents_processing');
+    assert.deepEqual(res.body.citations, []);
+  });
+}
+
+test('a failed document alone still gives no_documents', async () => {
+  const owner = await registerAndLogin(server.baseUrl);
+  await insertDocument(owner.tenantId, 'failed');
+
+  const res = await ask({ question: 'What is the late fee?' }, owner.token);
+  assert.equal(res.status, 200);
+  assert.equal(res.body.reason, 'no_documents');
 });
