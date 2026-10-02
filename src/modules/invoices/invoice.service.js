@@ -1,6 +1,6 @@
 import { db } from "../../infrastructure/db/index.js";
-import { invoices, invoiceItems , invoicePayments, invoiceStatusHistory, journalEntries, accounts } from "../../infrastructure/db/schema.js";
-import { and, eq, inArray , lt, desc, sql } from "drizzle-orm";
+import { invoices, invoiceItems , invoicePayments, invoiceStatusHistory, journalEntries, entryLines, accounts } from "../../infrastructure/db/schema.js";
+import { and, eq, gt, inArray , lt, desc, sql } from "drizzle-orm";
 import { assertTransition, statusThatCanReach  } from "./invoice.state.js";
 import { createJournalEntryTx } from "../ledger/ledger.service.js";
 import { AppError } from "../../lib/AppError.js";
@@ -131,6 +131,23 @@ export async function createInvoicePayment({
         if(!bankAccount || !receivableAccount) throw new AppError("One or more accounts are invalid", 422, "INVALID_ACCOUNT");
         if(bankAccount.currency !== invoice.currency || receivableAccount.currency !== invoice.currency){
             throw new AppError("Payment accounts must match the invoice currency", 422, "CURRENCY_MISMATCH");
+        }
+
+        // The payment must credit the receivable the issue entry debited.
+        // Invoices issued before issue posting have no entry and skip this.
+        if(invoice.issueJournalEntryId){
+            const [issueLine] = await tx.select().from(entryLines)
+                .where(and(
+                    eq(entryLines.entryId, invoice.issueJournalEntryId),
+                    eq(entryLines.tenantId, tenantId),
+                    gt(entryLines.amountMinor, 0n),
+                ))
+                .limit(1);
+            // A missing issue line is corrupt data, not a bad request: plain Error -> 500.
+            if(!issueLine) throw new Error(`Issue journal entry ${invoice.issueJournalEntryId} for invoice ${invoice.id} has no receivable line`);
+            if(issueLine.accountId !== accountReceivableAccountId){
+                throw new AppError("Payment must credit the receivable account used when the invoice was issued", 422, "RECEIVABLE_ACCOUNT_MISMATCH");
+            }
         }
 
         const allPayments = await tx.select().from(invoicePayments)

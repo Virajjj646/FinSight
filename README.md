@@ -21,7 +21,7 @@ FinSight is a multi-tenant backend for financial operations. It has a double-ent
 **Invoices**
 - An invoice has line items and a state machine: `DRAFT -> ISSUED -> PARTIALLY_PAID / PAID / OVERDUE`, and `VOID`. Every transition is written to `invoice_status_history`.
 - Issuing an invoice posts the receivable in the same transaction: debit the accounts-receivable account and credit the revenue account for the invoice total (idempotency key `invoice-issue:<invoiceId>`). The entry's id is stored on the invoice as `issueJournalEntryId`.
-- Payments are idempotent and post a balanced journal entry (debit the bank account, credit accounts receivable) in the same transaction. Once an invoice is fully paid, its receivable nets to zero.
+- Payments are idempotent and post a balanced journal entry (debit the bank account, credit accounts receivable) in the same transaction. A payment must credit the same receivable account that the invoice's issue entry debited, otherwise it is rejected with `RECEIVABLE_ACCOUNT_MISMATCH`. Invoices issued before issue posting have no issue entry and accept any valid receivable. Once an invoice is fully paid, its receivable nets to zero.
 - Invoice numbers are gapless and allocated per tenant (`INV-000001`, ...). The invoice list is paginated on the sequence number.
 - A BullMQ job scheduler (cron `0 0 * * *`) marks past-due invoices `OVERDUE`. Admins can also trigger it with `POST /api/admin/invoices/mark-overdue`.
 
@@ -382,6 +382,7 @@ Errors, in the order they are checked: `422 VALIDATION_FAILED` (body), `404 NOT_
 | 422 | `CURRENCY_MISMATCH` | Journal accounts in different currencies, or payment/issue accounts that don't match the invoice currency |
 | 422 | `INVALID_INVOICE` | Invoice with no items |
 | 422 | `ILLEGAL_TRANSITION` | Invoice status change the state machine does not allow (e.g. issuing twice, voiding a `PAID` invoice) |
+| 422 | `RECEIVABLE_ACCOUNT_MISMATCH` | Payment whose `accountReceivableAccountId` is not the receivable account the invoice's issue entry debited |
 | 422 | `NOT_PAYABLE` | Payment on an invoice in a status that cannot take payments (`DRAFT`, `PAID`, `VOID`) |
 | 422 | `PAYMENT_EXCEEDS_REMAINING` | Payment larger than the outstanding amount |
 | 422 | `INVOICE_HAS_PAYMENTS` | Void on an invoice with recorded payments |
@@ -466,7 +467,7 @@ Requirements:
 | --- | --- | --- |
 | Concurrency and invariants | `test/concurrency.test.js` | 8 end-to-end properties under parallel load (see the guarantees table) |
 | Ledger | `test/ledger/*` | Idempotent replay, key reuse rejection, 50 concurrent entries under one key, bulk balances (match per-account, `asOf`, isolation) |
-| Invoices | `test/invoices/*` | Issue posting and its validation, AR nets to zero after full payment, payment end to end, concurrent partial payments, void-vs-payment race, overdue job, pagination over concurrently created invoices, `paidAt` validation |
+| Invoices | `test/invoices/*` | Issue posting and its validation, AR nets to zero after full payment, payments must credit the issue's receivable, payment end to end, concurrent partial payments, void-vs-payment race, overdue job, pagination over concurrently created invoices, `paidAt` validation |
 | Documents | `test/documents/*` | PDF download (exact bytes, headers, isolation), retry and delete (status codes, roles, isolation, concurrent retries), deleted document disappears from retrieval and `/ask`, worker skips jobs for deleted documents |
 | Members | `test/members/*` | OWNER/ADMIN create, MEMBER 403 (including void), duplicate email 409, validation, list isolation |
 | Middleware | `test/middleware/*` | Rate limiter and LLM budget, `Retry-After` from `errorHandler`, security headers and CORS |
