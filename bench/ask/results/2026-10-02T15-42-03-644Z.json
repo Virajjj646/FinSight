@@ -1,0 +1,1058 @@
+{
+  "runAt": "2026-10-02T15:42:03.645Z",
+  "config": {
+    "gold": "bench/retrieval/gold.v2.jsonl",
+    "corpus": "bench/retrieval/corpus.v1.json",
+    "model": "qwen/qwen3.8-27b",
+    "k": 5,
+    "minScore": 0.55,
+    "chunkCounts": {
+      "acme": 12,
+      "globex": 11
+    },
+    "only": null,
+    "delayMs": 12000
+  },
+  "questions": [
+    {
+      "id": "acme-late-fee",
+      "type": "lookup",
+      "question": "What is the late fee on overdue amounts under the Acme agreement?",
+      "answerable": true,
+      "abstained": false,
+      "reason": null,
+      "answer": "The late fee on overdue amounts is one and a half percent (1.5%) per month, calculated daily from the Due Date until the date of actual payment [1].",
+      "citations": [
+        {
+          "marker": 1,
+          "doc": "acme",
+          "section": "4. Payment Terms"
+        }
+      ],
+      "topScore": 0.8332040111532422,
+      "model": "qwen/qwen3.8-27b",
+      "llmLatencyMs": 347.2031000000002,
+      "totalLatencyMs": 410.13179999999966,
+      "invalidMarkers": 0,
+      "missingFacts": [],
+      "correct": true,
+      "supported": true
+    },
+    {
+      "id": "acme-early-discount",
+      "type": "lookup",
+      "question": "What early payment discount does Acme offer?",
+      "answerable": true,
+      "abstained": false,
+      "reason": null,
+      "answer": "Acme offers an early payment discount of two percent (2%) of the invoice amount excluding GST if the Customer pays an invoice in full within ten (10) days of the Invoice Date [1].",
+      "citations": [
+        {
+          "marker": 1,
+          "doc": "acme",
+          "section": "4. Payment Terms"
+        }
+      ],
+      "topScore": 0.7240150303823183,
+      "model": "qwen/qwen3.8-27b",
+      "llmLatencyMs": 362.945499999998,
+      "totalLatencyMs": 951.6169000000009,
+      "invalidMarkers": 0,
+      "missingFacts": [],
+      "correct": true,
+      "supported": true
+    },
+    {
+      "id": "acme-due-date",
+      "type": "lookup",
+      "question": "How many days after the invoice date is payment due under the supply agreement?",
+      "answerable": true,
+      "abstained": false,
+      "reason": null,
+      "answer": "Under the Acme Supply Agreement, the \"Due Date\" is defined as the date falling thirty (30) days after the Invoice Date [2].",
+      "citations": [
+        {
+          "marker": 2,
+          "doc": "acme",
+          "section": "1. Definitions"
+        }
+      ],
+      "topScore": 0.8269115812551353,
+      "model": "qwen/qwen3.8-27b",
+      "llmLatencyMs": 305.0077999999994,
+      "totalLatencyMs": 793.8714,
+      "invalidMarkers": 0,
+      "missingFacts": [],
+      "correct": true,
+      "supported": true
+    },
+    {
+      "id": "acme-convenience-notice",
+      "type": "paraphrase",
+      "question": "How much notice do we need to give to end the supply contract without cause?",
+      "answerable": true,
+      "abstained": false,
+      "reason": null,
+      "answer": "To terminate the Acme supply contract for convenience (without cause), you must give not less than sixty (60) days' written notice [1].",
+      "citations": [
+        {
+          "marker": 1,
+          "doc": "acme",
+          "section": "5. Term and Termination"
+        }
+      ],
+      "topScore": 0.7515408096860874,
+      "model": "qwen/qwen3.8-27b",
+      "llmLatencyMs": 336.87019999999757,
+      "totalLatencyMs": 819.7669999999998,
+      "invalidMarkers": 0,
+      "missingFacts": [],
+      "correct": true,
+      "supported": true
+    },
+    {
+      "id": "acme-advance",
+      "type": "table",
+      "question": "What percentage of the order value is paid in advance?",
+      "answerable": true,
+      "abstained": false,
+      "reason": null,
+      "answer": "The advance payment is 20% of the order value [3].",
+      "citations": [
+        {
+          "marker": 3,
+          "doc": "acme",
+          "section": "3. Prices and Invoicing"
+        }
+      ],
+      "topScore": 0.6710553953515731,
+      "model": "qwen/qwen3.8-27b",
+      "llmLatencyMs": 284.45529999999417,
+      "totalLatencyMs": 849.3330999999962,
+      "invalidMarkers": 0,
+      "missingFacts": [],
+      "correct": true,
+      "supported": true
+    },
+    {
+      "id": "acme-dispatch-share",
+      "type": "table",
+      "question": "How much is payable when goods are dispatched?",
+      "answerable": true,
+      "abstained": false,
+      "reason": null,
+      "answer": "According to the Acme Supply Agreement, 70% of the order value is payable by the Due Date upon dispatch [1].",
+      "citations": [
+        {
+          "marker": 1,
+          "doc": "acme",
+          "section": "3. Prices and Invoicing"
+        }
+      ],
+      "topScore": 0.6731241540238777,
+      "model": "qwen/qwen3.8-27b",
+      "llmLatencyMs": 270.0676000000094,
+      "totalLatencyMs": 1001.8571000000084,
+      "invalidMarkers": 0,
+      "missingFacts": [],
+      "correct": true,
+      "supported": true
+    },
+    {
+      "id": "acme-final-share",
+      "type": "table",
+      "question": "When is the final 10% of the order value payable?",
+      "answerable": true,
+      "abstained": false,
+      "reason": null,
+      "answer": "The final 10% of the order value is payable 30 days after delivery [3].",
+      "citations": [
+        {
+          "marker": 3,
+          "doc": "acme",
+          "section": "3. Prices and Invoicing"
+        }
+      ],
+      "topScore": 0.6679574447934026,
+      "model": "qwen/qwen3.8-27b",
+      "llmLatencyMs": 330.8552999999956,
+      "totalLatencyMs": 1116.578600000008,
+      "invalidMarkers": 0,
+      "missingFacts": [],
+      "correct": true,
+      "supported": true
+    },
+    {
+      "id": "acme-dispute-window",
+      "type": "lookup",
+      "question": "How long do we have to raise a dispute about an invoice?",
+      "answerable": true,
+      "abstained": false,
+      "reason": null,
+      "answer": "Under the Acme Supply Agreement, the Customer must notify the Supplier in writing of any disputed amount within seven (7) Business Days of the Invoice Date [1].",
+      "citations": [
+        {
+          "marker": 1,
+          "doc": "acme",
+          "section": "4. Payment Terms"
+        }
+      ],
+      "topScore": 0.6851256048380081,
+      "model": "qwen/qwen3.8-27b",
+      "llmLatencyMs": 327.7021999999997,
+      "totalLatencyMs": 834.7584000000061,
+      "invalidMarkers": 0,
+      "missingFacts": [],
+      "correct": true,
+      "supported": true
+    },
+    {
+      "id": "acme-nonpayment-breach",
+      "type": "paraphrase",
+      "question": "If a payment stays overdue for a long time, when does it count as a serious breach?",
+      "answerable": true,
+      "abstained": false,
+      "reason": null,
+      "answer": "Under the Acme Supply Agreement, non-payment of any Overdue Amount for more than forty-five (45) days after the Due Date is considered a material breach [3].",
+      "citations": [
+        {
+          "marker": 3,
+          "doc": "acme",
+          "section": "5. Term and Termination"
+        }
+      ],
+      "topScore": 0.6892592044892408,
+      "model": "qwen/qwen3.8-27b",
+      "llmLatencyMs": 841.6751999999979,
+      "totalLatencyMs": 2186.9301000000123,
+      "invalidMarkers": 0,
+      "missingFacts": [],
+      "correct": true,
+      "supported": true
+    },
+    {
+      "id": "acme-start-term",
+      "type": "lookup",
+      "question": "When does the Acme agreement start and how long is the initial term?",
+      "answerable": true,
+      "abstained": false,
+      "reason": null,
+      "answer": "The Acme agreement commences on 1 April 2026 and has an initial term of two (2) years [1].",
+      "citations": [
+        {
+          "marker": 1,
+          "doc": "acme",
+          "section": "5. Term and Termination"
+        }
+      ],
+      "topScore": 0.7845425115116866,
+      "model": "qwen/qwen3.8-27b",
+      "llmLatencyMs": 369.6444000000047,
+      "totalLatencyMs": 1164.0622999999905,
+      "invalidMarkers": 0,
+      "missingFacts": [],
+      "correct": true,
+      "supported": true
+    },
+    {
+      "id": "acme-liability-cap",
+      "type": "paraphrase",
+      "question": "Is there a cap on how much either party can be held responsible for?",
+      "answerable": true,
+      "abstained": false,
+      "reason": null,
+      "answer": "Yes, there are caps on liability in the provided documents:\n\n* In the **acme-supply-agreement.pdf**, each Party's total liability shall not exceed the total fees paid or payable in the twelve (12) months preceding the claim [2].\n* In the **globex-services-agreement.pdf**, the Service Provider's total liability in any contract year shall not exceed the Monthly Fees paid in that contract year [3].",
+      "citations": [
+        {
+          "marker": 2,
+          "doc": "acme",
+          "section": "6. Limitation of Liability"
+        },
+        {
+          "marker": 3,
+          "doc": "globex",
+          "section": "9. Liability"
+        }
+      ],
+      "topScore": 0.6458382358165395,
+      "model": "qwen/qwen3.8-27b",
+      "llmLatencyMs": 399.3845999999903,
+      "totalLatencyMs": 962.4590000000026,
+      "invalidMarkers": 0,
+      "missingFacts": [],
+      "correct": true,
+      "supported": true
+    },
+    {
+      "id": "acme-confidentiality-survival",
+      "type": "cross_page",
+      "question": "How long do confidentiality obligations last after the supply agreement ends?",
+      "answerable": true,
+      "abstained": false,
+      "reason": null,
+      "answer": "Under the Acme Supply Agreement, confidentiality obligations survive termination for three (3) years [1].",
+      "citations": [
+        {
+          "marker": 1,
+          "doc": "acme",
+          "section": "9. Confidentiality"
+        }
+      ],
+      "topScore": 0.8082060495405491,
+      "model": "qwen/qwen3.8-27b",
+      "llmLatencyMs": 312.27840000001015,
+      "totalLatencyMs": 869.7797000000137,
+      "invalidMarkers": 0,
+      "missingFacts": [],
+      "correct": true,
+      "supported": true
+    },
+    {
+      "id": "acme-warranty",
+      "type": "lookup",
+      "question": "What warranty period applies to the components?",
+      "answerable": true,
+      "abstained": false,
+      "reason": null,
+      "answer": "The Supplier warrants that all components shall conform to the specifications in the relevant Purchase Order for a period of twelve (12) months from delivery [1].",
+      "citations": [
+        {
+          "marker": 1,
+          "doc": "acme",
+          "section": "8. Warranties"
+        }
+      ],
+      "topScore": 0.7611481631829101,
+      "model": "qwen/qwen3.8-27b",
+      "llmLatencyMs": 604.8658999999752,
+      "totalLatencyMs": 1362.4291000000085,
+      "invalidMarkers": 0,
+      "missingFacts": [],
+      "correct": true,
+      "supported": true
+    },
+    {
+      "id": "acme-delivery",
+      "type": "lookup",
+      "question": "Where are goods delivered and how quickly?",
+      "answerable": true,
+      "abstained": false,
+      "reason": null,
+      "answer": "Goods are delivered DAP to the Customer's warehouse in Chennai within fourteen (14) Business Days of acceptance of the Purchase Order [1].",
+      "citations": [
+        {
+          "marker": 1,
+          "doc": "acme",
+          "section": "2. Scope of Supply"
+        }
+      ],
+      "topScore": 0.59948329916303,
+      "model": "qwen/qwen3.8-27b",
+      "llmLatencyMs": 340.72869999997783,
+      "totalLatencyMs": 1021.5193999999901,
+      "invalidMarkers": 0,
+      "missingFacts": [],
+      "correct": true,
+      "supported": true
+    },
+    {
+      "id": "acme-jurisdiction",
+      "type": "lookup",
+      "question": "Which courts have jurisdiction over disputes with Acme?",
+      "answerable": true,
+      "abstained": false,
+      "reason": null,
+      "answer": "The courts at Chennai have exclusive jurisdiction over disputes under the Master Supply Agreement with Acme Components Ltd [1].",
+      "citations": [
+        {
+          "marker": 1,
+          "doc": "acme",
+          "section": "7. Governing Law"
+        }
+      ],
+      "topScore": 0.7350864787374025,
+      "model": "qwen/qwen3.8-27b",
+      "llmLatencyMs": 285.99179999998887,
+      "totalLatencyMs": 873.8579999999783,
+      "invalidMarkers": 0,
+      "missingFacts": [],
+      "correct": true,
+      "supported": true
+    },
+    {
+      "id": "acme-force-majeure-payment",
+      "type": "paraphrase",
+      "question": "Does a storm or other event outside our control excuse late payment?",
+      "answerable": true,
+      "abstained": false,
+      "reason": null,
+      "answer": "Yes, neither party is liable for delay caused by events beyond its reasonable control, but this does not excuse any obligation to pay money when due [1].",
+      "citations": [
+        {
+          "marker": 1,
+          "doc": "acme",
+          "section": "10. Force Majeure"
+        }
+      ],
+      "topScore": 0.652421394134872,
+      "model": "qwen/qwen3.8-27b",
+      "llmLatencyMs": 384.82159999999567,
+      "totalLatencyMs": 1225.1656000000075,
+      "invalidMarkers": 0,
+      "missingFacts": [],
+      "correct": true,
+      "supported": true
+    },
+    {
+      "id": "acme-disputed-late-fee",
+      "type": "cross_page",
+      "question": "Does the late fee apply to invoices we are disputing?",
+      "answerable": true,
+      "abstained": false,
+      "reason": null,
+      "answer": "Yes, the late fee does not apply to amounts disputed in good faith [1].",
+      "citations": [
+        {
+          "marker": 1,
+          "doc": "acme",
+          "section": "4. Payment Terms"
+        }
+      ],
+      "topScore": 0.7493400874113777,
+      "model": "qwen/qwen3.8-27b",
+      "llmLatencyMs": 287.6614000000118,
+      "totalLatencyMs": 798.1753000000026,
+      "invalidMarkers": 0,
+      "missingFacts": [],
+      "correct": true,
+      "supported": true
+    },
+    {
+      "id": "globex-monthly-fee",
+      "type": "lookup",
+      "question": "What is the monthly fee for Globex's services?",
+      "answerable": true,
+      "abstained": false,
+      "reason": null,
+      "answer": "The monthly fee for Globex's services is INR 4,50,000 [1].",
+      "citations": [
+        {
+          "marker": 1,
+          "doc": "globex",
+          "section": "3. Fees and Payment"
+        }
+      ],
+      "topScore": 0.771946237799301,
+      "model": "qwen/qwen3.8-27b",
+      "llmLatencyMs": 447.44759999998496,
+      "totalLatencyMs": 1618.4867999999842,
+      "invalidMarkers": 0,
+      "missingFacts": [],
+      "correct": true,
+      "supported": true
+    },
+    {
+      "id": "globex-payment-period",
+      "type": "lookup",
+      "question": "How many days does the client have to pay a Globex invoice?",
+      "answerable": true,
+      "abstained": false,
+      "reason": null,
+      "answer": "The client has forty-five (45) days from the date of receipt of a valid invoice to pay [1].",
+      "citations": [
+        {
+          "marker": 1,
+          "doc": "globex",
+          "section": "1. Definitions"
+        }
+      ],
+      "topScore": 0.7964604022228832,
+      "model": "qwen/qwen3.8-27b",
+      "llmLatencyMs": 339.86449999999604,
+      "totalLatencyMs": 917.1821000000054,
+      "invalidMarkers": 0,
+      "missingFacts": [],
+      "correct": true,
+      "supported": true
+    },
+    {
+      "id": "globex-late-interest",
+      "type": "lookup",
+      "question": "What interest rate applies to late amounts under the services agreement?",
+      "answerable": true,
+      "abstained": false,
+      "reason": null,
+      "answer": "Under the services agreement, Late Amounts bear interest at two percent (2%) per month, provided that total interest shall not exceed eighteen percent (18%) per annum [3].",
+      "citations": [
+        {
+          "marker": 3,
+          "doc": "globex",
+          "section": "3. Fees and Payment"
+        }
+      ],
+      "topScore": 0.7497386336950598,
+      "model": "qwen/qwen3.8-27b",
+      "llmLatencyMs": 774.4425000000047,
+      "totalLatencyMs": 4923.010899999994,
+      "invalidMarkers": 0,
+      "missingFacts": [],
+      "correct": true,
+      "supported": true
+    },
+    {
+      "id": "globex-interest-cap",
+      "type": "paraphrase",
+      "question": "Is there a maximum on interest charged for late payments to Globex?",
+      "answerable": true,
+      "abstained": false,
+      "reason": null,
+      "answer": "Yes, total interest on Late Amounts shall not exceed eighteen percent (18%) per annum [1].",
+      "citations": [
+        {
+          "marker": 1,
+          "doc": "globex",
+          "section": "3. Fees and Payment"
+        }
+      ],
+      "topScore": 0.7649608622503055,
+      "model": "qwen/qwen3.8-27b",
+      "llmLatencyMs": 284.81140000000596,
+      "totalLatencyMs": 858.2469000000274,
+      "invalidMarkers": 0,
+      "missingFacts": [],
+      "correct": true,
+      "supported": true
+    },
+    {
+      "id": "globex-convenience-notice",
+      "type": "lookup",
+      "question": "How much notice is needed to terminate the Globex agreement for convenience?",
+      "answerable": true,
+      "abstained": false,
+      "reason": null,
+      "answer": "The Client may terminate the Globex agreement for convenience on ninety (90) days' written notice [1].",
+      "citations": [
+        {
+          "marker": 1,
+          "doc": "globex",
+          "section": "4. Term and Termination"
+        }
+      ],
+      "topScore": 0.8255579395419554,
+      "model": "qwen/qwen3.8-27b",
+      "llmLatencyMs": 287.19469999999274,
+      "totalLatencyMs": 742.6710999999777,
+      "invalidMarkers": 0,
+      "missingFacts": [],
+      "correct": true,
+      "supported": true
+    },
+    {
+      "id": "globex-onboarding-fee",
+      "type": "table",
+      "question": "What is the one-time onboarding fee?",
+      "answerable": true,
+      "abstained": false,
+      "reason": null,
+      "answer": "The one-time onboarding fee is INR 1,20,000 [1].",
+      "citations": [
+        {
+          "marker": 1,
+          "doc": "globex",
+          "section": "3. Fees and Payment"
+        }
+      ],
+      "topScore": 0.6329381654542141,
+      "model": "qwen/qwen3.8-27b",
+      "llmLatencyMs": 278.11190000001807,
+      "totalLatencyMs": 784.8338999999687,
+      "invalidMarkers": 0,
+      "missingFacts": [],
+      "correct": true,
+      "supported": true
+    },
+    {
+      "id": "globex-termination-cost",
+      "type": "lookup",
+      "question": "What does it cost to terminate the services agreement early?",
+      "answerable": true,
+      "abstained": false,
+      "reason": null,
+      "answer": "Under the Globex Services Agreement, the Client may terminate for convenience by paying an early termination fee equal to two (2) Monthly Fees [1]. The Monthly Fee is INR 4,50,000 [3]. Therefore, the cost to terminate early is INR 9,00,000 (2 x INR 4,50,000) [1][3].",
+      "citations": [
+        {
+          "marker": 1,
+          "doc": "globex",
+          "section": "4. Term and Termination"
+        },
+        {
+          "marker": 3,
+          "doc": "globex",
+          "section": "3. Fees and Payment"
+        }
+      ],
+      "topScore": 0.7601504277465742,
+      "model": "qwen/qwen3.8-27b",
+      "llmLatencyMs": 446.3792999999714,
+      "totalLatencyMs": 984.467799999984,
+      "invalidMarkers": 0,
+      "missingFacts": [],
+      "correct": true,
+      "supported": true
+    },
+    {
+      "id": "globex-price-increase",
+      "type": "paraphrase",
+      "question": "Can Globex raise its prices?",
+      "answerable": true,
+      "abstained": false,
+      "reason": null,
+      "answer": "Yes, Globex can increase the Monthly Fee once in each contract year by no more than the change in the Consumer Price Index, provided it gives ninety (90) days' written notice [2].",
+      "citations": [
+        {
+          "marker": 2,
+          "doc": "globex",
+          "section": "3. Fees and Payment"
+        }
+      ],
+      "topScore": 0.6540458820976335,
+      "model": "qwen/qwen3.8-27b",
+      "llmLatencyMs": 483.7357000000193,
+      "totalLatencyMs": 1785.3641000000061,
+      "invalidMarkers": 0,
+      "missingFacts": [],
+      "correct": true,
+      "supported": true
+    },
+    {
+      "id": "globex-service-credit",
+      "type": "paraphrase",
+      "question": "What happens if the service provider's collections accuracy drops?",
+      "answerable": true,
+      "abstained": false,
+      "reason": null,
+      "answer": "If the Service Provider's collections accuracy falls below ninety-eight percent (98%) in any month, the Client is entitled to a service credit of five percent (5%) of that month's Monthly Fee [1].",
+      "citations": [
+        {
+          "marker": 1,
+          "doc": "globex",
+          "section": "8. Service Credits"
+        }
+      ],
+      "topScore": 0.6854463815689087,
+      "model": "qwen/qwen3.8-27b",
+      "llmLatencyMs": 301.8015000000014,
+      "totalLatencyMs": 781.4174999999814,
+      "invalidMarkers": 0,
+      "missingFacts": [],
+      "correct": true,
+      "supported": true
+    },
+    {
+      "id": "globex-confidentiality",
+      "type": "lookup",
+      "question": "How long must Globex keep our information confidential?",
+      "answerable": true,
+      "abstained": false,
+      "reason": null,
+      "answer": "Under the Globex Services Agreement, each party must keep the other party's Confidential Information secret for the term of the Agreement and five (5) years after its termination [1].",
+      "citations": [
+        {
+          "marker": 1,
+          "doc": "globex",
+          "section": "5. Confidentiality"
+        }
+      ],
+      "topScore": 0.8113633377308817,
+      "model": "qwen/qwen3.8-27b",
+      "llmLatencyMs": 753.6285999999964,
+      "totalLatencyMs": 2079.833400000003,
+      "invalidMarkers": 0,
+      "missingFacts": [],
+      "correct": true,
+      "supported": true
+    },
+    {
+      "id": "globex-data-law",
+      "type": "lookup",
+      "question": "Which data protection law must Globex follow?",
+      "answerable": true,
+      "abstained": false,
+      "reason": null,
+      "answer": "Globex must follow the Digital Personal Data Protection Act, 2023 [1].",
+      "citations": [
+        {
+          "marker": 1,
+          "doc": "globex",
+          "section": "7. Data Protection"
+        }
+      ],
+      "topScore": 0.7828823586842641,
+      "model": "qwen/qwen3.8-27b",
+      "llmLatencyMs": 293.01620000001276,
+      "totalLatencyMs": 1620.481700000004,
+      "invalidMarkers": 0,
+      "missingFacts": [],
+      "correct": true,
+      "supported": true
+    },
+    {
+      "id": "globex-term",
+      "type": "lookup",
+      "question": "What is the term of the services agreement?",
+      "answerable": true,
+      "abstained": true,
+      "reason": "model_insufficient_context",
+      "answer": "I couldn't find an answer to that in your documents.",
+      "citations": [],
+      "topScore": 0.7337264658428397,
+      "model": "qwen/qwen3.8-27b",
+      "llmLatencyMs": 259.7392000000109,
+      "totalLatencyMs": 891.5239000000292,
+      "invalidMarkers": 0
+    },
+    {
+      "id": "globex-suspension",
+      "type": "paraphrase",
+      "question": "Can Globex stop working if we don't pay?",
+      "answerable": true,
+      "abstained": false,
+      "reason": null,
+      "answer": "Yes, Globex can suspend the Services if any Late Amount remains unpaid for thirty (30) days after written notice [1]. A \"Late Amount\" is defined as any amount not received by the Service Provider by the end of the Payment Period, which is forty-five (45) days from the date of receipt of a valid invoice [4].",
+      "citations": [
+        {
+          "marker": 1,
+          "doc": "globex",
+          "section": "4. Term and Termination"
+        },
+        {
+          "marker": 4,
+          "doc": "globex",
+          "section": "1. Definitions"
+        }
+      ],
+      "topScore": 0.729418548414901,
+      "model": "qwen/qwen3.8-27b",
+      "llmLatencyMs": 450.44089999998687,
+      "totalLatencyMs": 1427.5435999999754,
+      "invalidMarkers": 0,
+      "missingFacts": [],
+      "correct": true,
+      "supported": true
+    },
+    {
+      "id": "globex-liability-cap",
+      "type": "lookup",
+      "question": "What is the limit on Globex's liability?",
+      "answerable": true,
+      "abstained": false,
+      "reason": null,
+      "answer": "Globex's total liability in any contract year shall not exceed the Monthly Fees paid in that contract year [1].",
+      "citations": [
+        {
+          "marker": 1,
+          "doc": "globex",
+          "section": "9. Liability"
+        }
+      ],
+      "topScore": 0.7558386311915853,
+      "model": "qwen/qwen3.8-27b",
+      "llmLatencyMs": 288.24280000000726,
+      "totalLatencyMs": 1048.5582000000286,
+      "invalidMarkers": 0,
+      "missingFacts": [],
+      "correct": true,
+      "supported": true
+    },
+    {
+      "id": "globex-location",
+      "type": "lookup",
+      "question": "Where does Globex provide the services from?",
+      "answerable": true,
+      "abstained": false,
+      "reason": null,
+      "answer": "Globex provides the services from its offices in Bengaluru, India [2].",
+      "citations": [
+        {
+          "marker": 2,
+          "doc": "globex",
+          "section": "2. Services"
+        }
+      ],
+      "topScore": 0.7284682989120483,
+      "model": "qwen/qwen3.8-27b",
+      "llmLatencyMs": 804.7152000000351,
+      "totalLatencyMs": 1646.1221000000369,
+      "invalidMarkers": 0,
+      "missingFacts": [],
+      "correct": true,
+      "supported": true
+    },
+    {
+      "id": "multi-late-interest",
+      "type": "multi_doc",
+      "question": "What interest or late fees apply to overdue payments?",
+      "answerable": true,
+      "abstained": false,
+      "reason": null,
+      "answer": "Under the Acme Supply Agreement, any Overdue Amount accrues a late fee of one and a half percent (1.5%) per month, calculated daily from the Due Date until the date of actual payment [1].\n\nUnder the Globex Services Agreement, Late Amounts bear interest at two percent (2%) per month, provided that total interest shall not exceed eighteen percent (18%) per annum [2].",
+      "citations": [
+        {
+          "marker": 1,
+          "doc": "acme",
+          "section": "4. Payment Terms"
+        },
+        {
+          "marker": 2,
+          "doc": "globex",
+          "section": "3. Fees and Payment"
+        }
+      ],
+      "topScore": 0.7252106561880453,
+      "model": "qwen/qwen3.8-27b",
+      "llmLatencyMs": 721.1714999999967,
+      "totalLatencyMs": 1459.550499999954,
+      "invalidMarkers": 0,
+      "missingFacts": [],
+      "correct": true,
+      "supported": true
+    },
+    {
+      "id": "multi-convenience-notice",
+      "type": "multi_doc",
+      "question": "What notice period applies to terminating each agreement for convenience?",
+      "answerable": true,
+      "abstained": false,
+      "reason": null,
+      "answer": "Under the Globex Services Agreement, the Client may terminate for convenience on ninety (90) days' written notice [1]. Under the Acme Supply Agreement, either Party may terminate for convenience by giving not less than sixty (60) days' written notice [2].",
+      "citations": [
+        {
+          "marker": 1,
+          "doc": "globex",
+          "section": "4. Term and Termination"
+        },
+        {
+          "marker": 2,
+          "doc": "acme",
+          "section": "5. Term and Termination"
+        }
+      ],
+      "topScore": 0.748394913827993,
+      "model": "qwen/qwen3.8-27b",
+      "llmLatencyMs": 421.4548000000068,
+      "totalLatencyMs": 2096.36460000003,
+      "invalidMarkers": 0,
+      "missingFacts": [],
+      "correct": true,
+      "supported": true
+    },
+    {
+      "id": "multi-jurisdiction",
+      "type": "multi_doc",
+      "question": "Which courts have jurisdiction under our contracts?",
+      "answerable": true,
+      "abstained": false,
+      "reason": null,
+      "answer": "Under the Globex Services Agreement, the courts at Bengaluru have exclusive jurisdiction [1]. Under the Acme Supply Agreement, the courts at Chennai have exclusive jurisdiction [2].",
+      "citations": [
+        {
+          "marker": 1,
+          "doc": "globex",
+          "section": "6. Governing Law"
+        },
+        {
+          "marker": 2,
+          "doc": "acme",
+          "section": "7. Governing Law"
+        }
+      ],
+      "topScore": 0.7128865884136873,
+      "model": "qwen/qwen3.8-27b",
+      "llmLatencyMs": 358.1746999999741,
+      "totalLatencyMs": 1118.8635999999824,
+      "invalidMarkers": 0,
+      "missingFacts": [],
+      "correct": true,
+      "supported": true
+    },
+    {
+      "id": "multi-confidentiality",
+      "type": "multi_doc",
+      "question": "How long do confidentiality obligations survive termination?",
+      "answerable": true,
+      "abstained": false,
+      "reason": null,
+      "answer": "The confidentiality obligations in the Globex Services Agreement survive termination for five (5) years [1]. In the Acme Supply Agreement, these obligations survive termination for three (3) years [2].",
+      "citations": [
+        {
+          "marker": 1,
+          "doc": "globex",
+          "section": "5. Confidentiality"
+        },
+        {
+          "marker": 2,
+          "doc": "acme",
+          "section": "9. Confidentiality"
+        }
+      ],
+      "topScore": 0.7631543984549064,
+      "model": "qwen/qwen3.8-27b",
+      "llmLatencyMs": 321.79710000002524,
+      "totalLatencyMs": 735.0954999999958,
+      "invalidMarkers": 0,
+      "missingFacts": [],
+      "correct": true,
+      "supported": true
+    },
+    {
+      "id": "none-wifi",
+      "type": "unanswerable",
+      "question": "What is the office Wi-Fi password?",
+      "answerable": false,
+      "abstained": true,
+      "reason": "below_score_floor",
+      "answer": "I couldn't find an answer to that in your documents.",
+      "citations": [],
+      "topScore": 0.48082506542355974,
+      "model": null,
+      "llmLatencyMs": null,
+      "totalLatencyMs": 675.2434999999823,
+      "invalidMarkers": 0
+    },
+    {
+      "id": "none-ceo",
+      "type": "unanswerable",
+      "question": "Who is the CEO of Brightline Retail?",
+      "answerable": false,
+      "abstained": true,
+      "reason": "model_insufficient_context",
+      "answer": "I couldn't find an answer to that in your documents.",
+      "citations": [],
+      "topScore": 0.6139495142668207,
+      "model": "qwen/qwen3.8-27b",
+      "llmLatencyMs": 706.1773999999859,
+      "totalLatencyMs": 3885.543800000043,
+      "invalidMarkers": 0
+    },
+    {
+      "id": "none-late-delivery-penalty",
+      "type": "unanswerable",
+      "question": "What is the penalty for late delivery of components?",
+      "answerable": false,
+      "abstained": true,
+      "reason": "model_insufficient_context",
+      "answer": "I couldn't find an answer to that in your documents.",
+      "citations": [],
+      "topScore": 0.7393709641508505,
+      "model": "qwen/qwen3.8-27b",
+      "llmLatencyMs": 312.25760000001173,
+      "totalLatencyMs": 1029.6214000000036,
+      "invalidMarkers": 0
+    },
+    {
+      "id": "none-non-compete",
+      "type": "unanswerable",
+      "question": "Does the Acme agreement include a non-compete clause?",
+      "answerable": false,
+      "abstained": true,
+      "reason": "model_insufficient_context",
+      "answer": "I couldn't find an answer to that in your documents.",
+      "citations": [],
+      "topScore": 0.7082770292924064,
+      "model": "qwen/qwen3.8-27b",
+      "llmLatencyMs": 229.36719999997877,
+      "totalLatencyMs": 796.8093000000226,
+      "invalidMarkers": 0
+    },
+    {
+      "id": "none-insurance",
+      "type": "unanswerable",
+      "question": "What insurance coverage must the supplier maintain?",
+      "answerable": false,
+      "abstained": true,
+      "reason": "model_insufficient_context",
+      "answer": "I couldn't find an answer to that in your documents.",
+      "citations": [],
+      "topScore": 0.6590256088101272,
+      "model": "qwen/qwen3.8-27b",
+      "llmLatencyMs": 226.86450000002515,
+      "totalLatencyMs": 808.3120000000345,
+      "invalidMarkers": 0
+    },
+    {
+      "id": "none-bank-account",
+      "type": "unanswerable",
+      "question": "What is Globex's bank account number for payments?",
+      "answerable": false,
+      "abstained": true,
+      "reason": "model_insufficient_context",
+      "answer": "I couldn't find an answer to that in your documents.",
+      "citations": [],
+      "topScore": 0.6798233222540193,
+      "model": "qwen/qwen3.8-27b",
+      "llmLatencyMs": 247.50219999998808,
+      "totalLatencyMs": 710.6465000000317,
+      "invalidMarkers": 0
+    },
+    {
+      "id": "none-headcount",
+      "type": "unanswerable",
+      "question": "How many employees does Globex have?",
+      "answerable": false,
+      "abstained": true,
+      "reason": "model_insufficient_context",
+      "answer": "I couldn't find an answer to that in your documents.",
+      "citations": [],
+      "topScore": 0.6596877777762558,
+      "model": "qwen/qwen3.8-27b",
+      "llmLatencyMs": 221.2612000000663,
+      "totalLatencyMs": 797.3153000000166,
+      "invalidMarkers": 0
+    },
+    {
+      "id": "none-assignment",
+      "type": "unanswerable",
+      "question": "Can either party assign the agreement to a third party?",
+      "answerable": false,
+      "abstained": true,
+      "reason": "model_insufficient_context",
+      "answer": "I couldn't find an answer to that in your documents.",
+      "citations": [],
+      "topScore": 0.6613029645320407,
+      "model": "qwen/qwen3.8-27b",
+      "llmLatencyMs": 217.91229999996722,
+      "totalLatencyMs": 728.6742000000086,
+      "invalidMarkers": 0
+    },
+    {
+      "id": "none-unit-price",
+      "type": "unanswerable",
+      "question": "What is the price per unit for the components?",
+      "answerable": false,
+      "abstained": true,
+      "reason": "model_insufficient_context",
+      "answer": "I couldn't find an answer to that in your documents.",
+      "citations": [],
+      "topScore": 0.6655496557220788,
+      "model": "qwen/qwen3.8-27b",
+      "llmLatencyMs": 297.7695000000531,
+      "totalLatencyMs": 1309.549299999955,
+      "invalidMarkers": 0
+    },
+    {
+      "id": "none-weather",
+      "type": "unanswerable",
+      "question": "What is the weather in Chennai today?",
+      "answerable": false,
+      "abstained": true,
+      "reason": "below_score_floor",
+      "answer": "I couldn't find an answer to that in your documents.",
+      "citations": [],
+      "topScore": 0.4797134268540113,
+      "model": null,
+      "llmLatencyMs": null,
+      "totalLatencyMs": 614.1744000000181,
+      "invalidMarkers": 0
+    }
+  ]
+}

@@ -11,6 +11,9 @@ const envSchema = z.object({
     (v) => (v === "" ? undefined : v),
     z.string().min(32, "ADMIN_TOKEN must be at least 32 characters").optional()
   ),
+  FINSIGHT_LLM_BASE_URL: z.string().url().optional(),
+  FINSIGHT_LLM_API_KEY: z.string().min(1).optional(),
+  FINSIGHT_LLM_MODEL: z.string().min(1).default("llama-3.3-70b-versatile"),
 });
 
 const parsed = envSchema.safeParse(process.env);

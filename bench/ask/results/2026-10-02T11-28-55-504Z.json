@@ -1,0 +1,513 @@
+{
+  "runAt": "2026-10-02T11:28:55.505Z",
+  "config": {
+    "gold": "bench/retrieval/gold.v2.jsonl",
+    "corpus": "bench/retrieval/corpus.v1.json",
+    "model": "meta-llama/Llama-3.3-70B-Instruct",
+    "k": 5,
+    "minScore": 0.55,
+    "chunkCounts": {
+      "acme": 12,
+      "globex": 11
+    },
+    "only": null
+  },
+  "questions": [
+    {
+      "id": "acme-late-fee",
+      "type": "lookup",
+      "question": "What is the late fee on overdue amounts under the Acme agreement?",
+      "answerable": true,
+      "abstained": false,
+      "reason": null,
+      "answer": "The late fee on overdue amounts is one and a half percent (1.5%) per month, calculated daily from the Due Date until the date of actual payment [1].",
+      "citations": [
+        {
+          "marker": 1,
+          "doc": "acme",
+          "section": "4. Payment Terms"
+        }
+      ],
+      "topScore": 0.8332040111532422,
+      "model": "meta-llama/Llama-3.3-70B-Instruct-Turbo",
+      "llmLatencyMs": 1221.5203000000001,
+      "totalLatencyMs": 1289.2511000000004,
+      "invalidMarkers": 0,
+      "missingFacts": [],
+      "correct": true,
+      "supported": true
+    },
+    {
+      "id": "acme-early-discount",
+      "type": "lookup",
+      "question": "What early payment discount does Acme offer?",
+      "answerable": true,
+      "abstained": false,
+      "reason": null,
+      "answer": "Acme offers an early payment discount of two percent (2%) of the invoice amount excluding GST if the Customer pays an invoice in full within ten (10) days of the Invoice Date [1].",
+      "citations": [
+        {
+          "marker": 1,
+          "doc": "acme",
+          "section": "4. Payment Terms"
+        }
+      ],
+      "topScore": 0.7240150303823183,
+      "model": "meta-llama/Llama-3.3-70B-Instruct-Turbo",
+      "llmLatencyMs": 1140.5842000000002,
+      "totalLatencyMs": 1230.3095999999996,
+      "invalidMarkers": 0,
+      "missingFacts": [],
+      "correct": true,
+      "supported": true
+    },
+    {
+      "id": "acme-due-date",
+      "type": "lookup",
+      "question": "How many days after the invoice date is payment due under the supply agreement?",
+      "answerable": true,
+      "abstained": false,
+      "reason": null,
+      "answer": "Payment is due thirty (30) days after the Invoice Date under the supply agreement [2].",
+      "citations": [
+        {
+          "marker": 2,
+          "doc": "acme",
+          "section": "1. Definitions"
+        }
+      ],
+      "topScore": 0.8269115812551353,
+      "model": "meta-llama/Llama-3.3-70B-Instruct-Turbo",
+      "llmLatencyMs": 1304.3042999999998,
+      "totalLatencyMs": 1444.1333999999988,
+      "invalidMarkers": 0,
+      "missingFacts": [],
+      "correct": true,
+      "supported": true
+    },
+    {
+      "id": "acme-convenience-notice",
+      "type": "paraphrase",
+      "question": "How much notice do we need to give to end the supply contract without cause?",
+      "answerable": true,
+      "abstained": false,
+      "reason": null,
+      "answer": "We need to give not less than sixty (60) days' written notice to end the supply contract without cause, as stated in the Master Supply Agreement in document \"acme-supply-agreement.pdf\" [1].",
+      "citations": [
+        {
+          "marker": 1,
+          "doc": "acme",
+          "section": "5. Term and Termination"
+        }
+      ],
+      "topScore": 0.7515408096860874,
+      "model": "meta-llama/Llama-3.3-70B-Instruct-Turbo",
+      "llmLatencyMs": 1383.3456000000006,
+      "totalLatencyMs": 1495.9899000000005,
+      "invalidMarkers": 0,
+      "missingFacts": [],
+      "correct": true,
+      "supported": true
+    },
+    {
+      "id": "acme-advance",
+      "type": "table",
+      "question": "What percentage of the order value is paid in advance?",
+      "answerable": true,
+      "abstained": false,
+      "reason": null,
+      "answer": "The advance payment is 20% of the order value [3].",
+      "citations": [
+        {
+          "marker": 3,
+          "doc": "acme",
+          "section": "3. Prices and Invoicing"
+        }
+      ],
+      "topScore": 0.6710553953515731,
+      "model": "meta-llama/Llama-3.3-70B-Instruct-Turbo",
+      "llmLatencyMs": 1185.3257999999987,
+      "totalLatencyMs": 1263.2951000000012,
+      "invalidMarkers": 0,
+      "missingFacts": [],
+      "correct": true,
+      "supported": true
+    },
+    {
+      "id": "acme-dispatch-share",
+      "type": "table",
+      "question": "How much is payable when goods are dispatched?",
+      "answerable": true,
+      "abstained": false,
+      "reason": null,
+      "answer": "70% of the order value is payable when goods are dispatched [1].",
+      "citations": [
+        {
+          "marker": 1,
+          "doc": "acme",
+          "section": "3. Prices and Invoicing"
+        }
+      ],
+      "topScore": 0.6731241540238777,
+      "model": "meta-llama/Llama-3.3-70B-Instruct-Turbo",
+      "llmLatencyMs": 1061.7386999999999,
+      "totalLatencyMs": 1128.0265,
+      "invalidMarkers": 0,
+      "missingFacts": [],
+      "correct": true,
+      "supported": true
+    },
+    {
+      "id": "acme-final-share",
+      "type": "table",
+      "question": "When is the final 10% of the order value payable?",
+      "answerable": true,
+      "error": "LLM_UPSTREAM_ERROR: The answer service returned an error"
+    },
+    {
+      "id": "acme-dispute-window",
+      "type": "lookup",
+      "question": "How long do we have to raise a dispute about an invoice?",
+      "answerable": true,
+      "error": "LLM_UPSTREAM_ERROR: The answer service returned an error"
+    },
+    {
+      "id": "acme-nonpayment-breach",
+      "type": "paraphrase",
+      "question": "If a payment stays overdue for a long time, when does it count as a serious breach?",
+      "answerable": true,
+      "error": "LLM_UPSTREAM_ERROR: The answer service returned an error"
+    },
+    {
+      "id": "acme-start-term",
+      "type": "lookup",
+      "question": "When does the Acme agreement start and how long is the initial term?",
+      "answerable": true,
+      "error": "LLM_UPSTREAM_ERROR: The answer service returned an error"
+    },
+    {
+      "id": "acme-liability-cap",
+      "type": "paraphrase",
+      "question": "Is there a cap on how much either party can be held responsible for?",
+      "answerable": true,
+      "error": "LLM_UPSTREAM_ERROR: The answer service returned an error"
+    },
+    {
+      "id": "acme-confidentiality-survival",
+      "type": "cross_page",
+      "question": "How long do confidentiality obligations last after the supply agreement ends?",
+      "answerable": true,
+      "error": "LLM_UPSTREAM_ERROR: The answer service returned an error"
+    },
+    {
+      "id": "acme-warranty",
+      "type": "lookup",
+      "question": "What warranty period applies to the components?",
+      "answerable": true,
+      "error": "LLM_UPSTREAM_ERROR: The answer service returned an error"
+    },
+    {
+      "id": "acme-delivery",
+      "type": "lookup",
+      "question": "Where are goods delivered and how quickly?",
+      "answerable": true,
+      "error": "LLM_UPSTREAM_ERROR: The answer service returned an error"
+    },
+    {
+      "id": "acme-jurisdiction",
+      "type": "lookup",
+      "question": "Which courts have jurisdiction over disputes with Acme?",
+      "answerable": true,
+      "error": "LLM_UPSTREAM_ERROR: The answer service returned an error"
+    },
+    {
+      "id": "acme-force-majeure-payment",
+      "type": "paraphrase",
+      "question": "Does a storm or other event outside our control excuse late payment?",
+      "answerable": true,
+      "error": "LLM_UPSTREAM_ERROR: The answer service returned an error"
+    },
+    {
+      "id": "acme-disputed-late-fee",
+      "type": "cross_page",
+      "question": "Does the late fee apply to invoices we are disputing?",
+      "answerable": true,
+      "error": "LLM_UPSTREAM_ERROR: The answer service returned an error"
+    },
+    {
+      "id": "globex-monthly-fee",
+      "type": "lookup",
+      "question": "What is the monthly fee for Globex's services?",
+      "answerable": true,
+      "error": "LLM_UPSTREAM_ERROR: The answer service returned an error"
+    },
+    {
+      "id": "globex-payment-period",
+      "type": "lookup",
+      "question": "How many days does the client have to pay a Globex invoice?",
+      "answerable": true,
+      "error": "LLM_UPSTREAM_ERROR: The answer service returned an error"
+    },
+    {
+      "id": "globex-late-interest",
+      "type": "lookup",
+      "question": "What interest rate applies to late amounts under the services agreement?",
+      "answerable": true,
+      "error": "LLM_UPSTREAM_ERROR: The answer service returned an error"
+    },
+    {
+      "id": "globex-interest-cap",
+      "type": "paraphrase",
+      "question": "Is there a maximum on interest charged for late payments to Globex?",
+      "answerable": true,
+      "error": "LLM_UPSTREAM_ERROR: The answer service returned an error"
+    },
+    {
+      "id": "globex-convenience-notice",
+      "type": "lookup",
+      "question": "How much notice is needed to terminate the Globex agreement for convenience?",
+      "answerable": true,
+      "error": "LLM_UPSTREAM_ERROR: The answer service returned an error"
+    },
+    {
+      "id": "globex-onboarding-fee",
+      "type": "table",
+      "question": "What is the one-time onboarding fee?",
+      "answerable": true,
+      "error": "LLM_UPSTREAM_ERROR: The answer service returned an error"
+    },
+    {
+      "id": "globex-termination-cost",
+      "type": "lookup",
+      "question": "What does it cost to terminate the services agreement early?",
+      "answerable": true,
+      "error": "LLM_UPSTREAM_ERROR: The answer service returned an error"
+    },
+    {
+      "id": "globex-price-increase",
+      "type": "paraphrase",
+      "question": "Can Globex raise its prices?",
+      "answerable": true,
+      "error": "LLM_UPSTREAM_ERROR: The answer service returned an error"
+    },
+    {
+      "id": "globex-service-credit",
+      "type": "paraphrase",
+      "question": "What happens if the service provider's collections accuracy drops?",
+      "answerable": true,
+      "error": "LLM_UPSTREAM_ERROR: The answer service returned an error"
+    },
+    {
+      "id": "globex-confidentiality",
+      "type": "lookup",
+      "question": "How long must Globex keep our information confidential?",
+      "answerable": true,
+      "error": "LLM_UPSTREAM_ERROR: The answer service returned an error"
+    },
+    {
+      "id": "globex-data-law",
+      "type": "lookup",
+      "question": "Which data protection law must Globex follow?",
+      "answerable": true,
+      "error": "LLM_UPSTREAM_ERROR: The answer service returned an error"
+    },
+    {
+      "id": "globex-term",
+      "type": "lookup",
+      "question": "What is the term of the services agreement?",
+      "answerable": true,
+      "error": "LLM_UPSTREAM_ERROR: The answer service returned an error"
+    },
+    {
+      "id": "globex-suspension",
+      "type": "paraphrase",
+      "question": "Can Globex stop working if we don't pay?",
+      "answerable": true,
+      "error": "LLM_UPSTREAM_ERROR: The answer service returned an error"
+    },
+    {
+      "id": "globex-liability-cap",
+      "type": "lookup",
+      "question": "What is the limit on Globex's liability?",
+      "answerable": true,
+      "abstained": false,
+      "reason": null,
+      "answer": "The Service Provider's total liability in any contract year shall not exceed the Monthly Fees paid in that contract year [1].",
+      "citations": [
+        {
+          "marker": 1,
+          "doc": "globex",
+          "section": "9. Liability"
+        }
+      ],
+      "topScore": 0.7558386311915853,
+      "model": "meta-llama/Llama-3.3-70B-Instruct-Turbo",
+      "llmLatencyMs": 1394.1424000000006,
+      "totalLatencyMs": 1516.4628000000012,
+      "invalidMarkers": 0,
+      "missingFacts": [],
+      "correct": true,
+      "supported": true
+    },
+    {
+      "id": "globex-location",
+      "type": "lookup",
+      "question": "Where does Globex provide the services from?",
+      "answerable": true,
+      "abstained": false,
+      "reason": null,
+      "answer": "Globex provides the services from its offices in Bengaluru, India [2].",
+      "citations": [
+        {
+          "marker": 2,
+          "doc": "globex",
+          "section": "2. Services"
+        }
+      ],
+      "topScore": 0.7284682989120483,
+      "model": "meta-llama/Llama-3.3-70B-Instruct-Turbo",
+      "llmLatencyMs": 1057.948800000002,
+      "totalLatencyMs": 1124.3953000000001,
+      "invalidMarkers": 0,
+      "missingFacts": [],
+      "correct": true,
+      "supported": true
+    },
+    {
+      "id": "multi-late-interest",
+      "type": "multi_doc",
+      "question": "What interest or late fees apply to overdue payments?",
+      "answerable": true,
+      "abstained": false,
+      "reason": null,
+      "answer": "For the Acme Components Ltd agreement, a late fee of one and a half percent (1.5%) per month is applied to Overdue Amounts, calculated daily from the Due Date until the date of actual payment [1]. For the Globex Receivables LLP agreement, Late Amounts bear interest at two percent (2%) per month, with a maximum of eighteen percent (18%) per annum [2].",
+      "citations": [
+        {
+          "marker": 1,
+          "doc": "acme",
+          "section": "4. Payment Terms"
+        },
+        {
+          "marker": 2,
+          "doc": "globex",
+          "section": "3. Fees and Payment"
+        }
+      ],
+      "topScore": 0.7252106561880453,
+      "model": "meta-llama/Llama-3.3-70B-Instruct-Turbo",
+      "llmLatencyMs": 1998.135699999999,
+      "totalLatencyMs": 2063.4029999999984,
+      "invalidMarkers": 0,
+      "missingFacts": [],
+      "correct": true,
+      "supported": true
+    },
+    {
+      "id": "multi-convenience-notice",
+      "type": "multi_doc",
+      "question": "What notice period applies to terminating each agreement for convenience?",
+      "answerable": true,
+      "error": "LLM_UPSTREAM_ERROR: The answer service returned an error"
+    },
+    {
+      "id": "multi-jurisdiction",
+      "type": "multi_doc",
+      "question": "Which courts have jurisdiction under our contracts?",
+      "answerable": true,
+      "error": "LLM_UPSTREAM_ERROR: The answer service returned an error"
+    },
+    {
+      "id": "multi-confidentiality",
+      "type": "multi_doc",
+      "question": "How long do confidentiality obligations survive termination?",
+      "answerable": true,
+      "error": "LLM_UPSTREAM_ERROR: The answer service returned an error"
+    },
+    {
+      "id": "none-wifi",
+      "type": "unanswerable",
+      "question": "What is the office Wi-Fi password?",
+      "answerable": false,
+      "abstained": true,
+      "reason": "below_score_floor",
+      "answer": "I couldn't find an answer to that in your documents.",
+      "citations": [],
+      "topScore": 0.48082506542355974,
+      "model": null,
+      "llmLatencyMs": null,
+      "totalLatencyMs": 66.54929999999877,
+      "invalidMarkers": 0
+    },
+    {
+      "id": "none-ceo",
+      "type": "unanswerable",
+      "question": "Who is the CEO of Brightline Retail?",
+      "answerable": false,
+      "error": "LLM_UPSTREAM_ERROR: The answer service returned an error"
+    },
+    {
+      "id": "none-late-delivery-penalty",
+      "type": "unanswerable",
+      "question": "What is the penalty for late delivery of components?",
+      "answerable": false,
+      "error": "LLM_UPSTREAM_ERROR: The answer service returned an error"
+    },
+    {
+      "id": "none-non-compete",
+      "type": "unanswerable",
+      "question": "Does the Acme agreement include a non-compete clause?",
+      "answerable": false,
+      "error": "LLM_UPSTREAM_ERROR: The answer service returned an error"
+    },
+    {
+      "id": "none-insurance",
+      "type": "unanswerable",
+      "question": "What insurance coverage must the supplier maintain?",
+      "answerable": false,
+      "error": "LLM_UPSTREAM_ERROR: The answer service returned an error"
+    },
+    {
+      "id": "none-bank-account",
+      "type": "unanswerable",
+      "question": "What is Globex's bank account number for payments?",
+      "answerable": false,
+      "error": "LLM_UPSTREAM_ERROR: The answer service returned an error"
+    },
+    {
+      "id": "none-headcount",
+      "type": "unanswerable",
+      "question": "How many employees does Globex have?",
+      "answerable": false,
+      "error": "LLM_UPSTREAM_ERROR: The answer service returned an error"
+    },
+    {
+      "id": "none-assignment",
+      "type": "unanswerable",
+      "question": "Can either party assign the agreement to a third party?",
+      "answerable": false,
+      "error": "LLM_UPSTREAM_ERROR: The answer service returned an error"
+    },
+    {
+      "id": "none-unit-price",
+      "type": "unanswerable",
+      "question": "What is the price per unit for the components?",
+      "answerable": false,
+      "error": "LLM_UPSTREAM_ERROR: The answer service returned an error"
+    },
+    {
+      "id": "none-weather",
+      "type": "unanswerable",
+      "question": "What is the weather in Chennai today?",
+      "answerable": false,
+      "abstained": true,
+      "reason": "below_score_floor",
+      "answer": "I couldn't find an answer to that in your documents.",
+      "citations": [],
+      "topScore": 0.4797134268540113,
+      "model": null,
+      "llmLatencyMs": null,
+      "totalLatencyMs": 67.65799999999945,
+      "invalidMarkers": 0
+    }
+  ]
+}

@@ -1,0 +1,751 @@
+{
+  "runAt": "2026-10-02T15:29:36.663Z",
+  "config": {
+    "gold": "bench/retrieval/gold.v2.jsonl",
+    "corpus": "bench/retrieval/corpus.v1.json",
+    "model": "qwen/qwen3.8-27b",
+    "k": 5,
+    "minScore": 0.55,
+    "chunkCounts": {
+      "acme": 12,
+      "globex": 11
+    },
+    "only": null,
+    "delayMs": 1000
+  },
+  "questions": [
+    {
+      "id": "acme-late-fee",
+      "type": "lookup",
+      "question": "What is the late fee on overdue amounts under the Acme agreement?",
+      "answerable": true,
+      "abstained": false,
+      "reason": null,
+      "answer": "The late fee on overdue amounts is one and a half percent (1.5%) per month, calculated daily from the Due Date until the date of actual payment [1].",
+      "citations": [
+        {
+          "marker": 1,
+          "doc": "acme",
+          "section": "4. Payment Terms"
+        }
+      ],
+      "topScore": 0.8332040111532422,
+      "model": "qwen/qwen3.8-27b",
+      "llmLatencyMs": 317.5012999999999,
+      "totalLatencyMs": 389.25080000000025,
+      "invalidMarkers": 0,
+      "missingFacts": [],
+      "correct": true,
+      "supported": true
+    },
+    {
+      "id": "acme-early-discount",
+      "type": "lookup",
+      "question": "What early payment discount does Acme offer?",
+      "answerable": true,
+      "abstained": false,
+      "reason": null,
+      "answer": "Acme offers an early payment discount of two percent (2%) of the invoice amount excluding GST if the Customer pays the invoice in full within ten (10) days of the Invoice Date [1].",
+      "citations": [
+        {
+          "marker": 1,
+          "doc": "acme",
+          "section": "4. Payment Terms"
+        }
+      ],
+      "topScore": 0.7240150303823183,
+      "model": "qwen/qwen3.8-27b",
+      "llmLatencyMs": 288.7951000000003,
+      "totalLatencyMs": 436.91539999999986,
+      "invalidMarkers": 0,
+      "missingFacts": [],
+      "correct": true,
+      "supported": true
+    },
+    {
+      "id": "acme-due-date",
+      "type": "lookup",
+      "question": "How many days after the invoice date is payment due under the supply agreement?",
+      "answerable": true,
+      "abstained": false,
+      "reason": null,
+      "answer": "Under the Acme Supply Agreement, the \"Due Date\" is defined as the date falling thirty (30) days after the Invoice Date [2].",
+      "citations": [
+        {
+          "marker": 2,
+          "doc": "acme",
+          "section": "1. Definitions"
+        }
+      ],
+      "topScore": 0.8269115812551353,
+      "model": "qwen/qwen3.8-27b",
+      "llmLatencyMs": 273.7393999999995,
+      "totalLatencyMs": 438.16039999999975,
+      "invalidMarkers": 0,
+      "missingFacts": [],
+      "correct": true,
+      "supported": true
+    },
+    {
+      "id": "acme-convenience-notice",
+      "type": "paraphrase",
+      "question": "How much notice do we need to give to end the supply contract without cause?",
+      "answerable": true,
+      "abstained": false,
+      "reason": null,
+      "answer": "To terminate the Acme supply contract for convenience (without cause), you must give not less than sixty (60) days' written notice [1].",
+      "citations": [
+        {
+          "marker": 1,
+          "doc": "acme",
+          "section": "5. Term and Termination"
+        }
+      ],
+      "topScore": 0.7515408096860874,
+      "model": "qwen/qwen3.8-27b",
+      "llmLatencyMs": 272.96729999999934,
+      "totalLatencyMs": 434.4879999999994,
+      "invalidMarkers": 0,
+      "missingFacts": [],
+      "correct": true,
+      "supported": true
+    },
+    {
+      "id": "acme-advance",
+      "type": "table",
+      "question": "What percentage of the order value is paid in advance?",
+      "answerable": true,
+      "abstained": false,
+      "reason": null,
+      "answer": "The advance payment is 20% of the order value [3].",
+      "citations": [
+        {
+          "marker": 3,
+          "doc": "acme",
+          "section": "3. Prices and Invoicing"
+        }
+      ],
+      "topScore": 0.6710553953515731,
+      "model": "qwen/qwen3.8-27b",
+      "llmLatencyMs": 259.59900000000016,
+      "totalLatencyMs": 428.6329999999998,
+      "invalidMarkers": 0,
+      "missingFacts": [],
+      "correct": true,
+      "supported": true
+    },
+    {
+      "id": "acme-dispatch-share",
+      "type": "table",
+      "question": "How much is payable when goods are dispatched?",
+      "answerable": true,
+      "abstained": false,
+      "reason": null,
+      "answer": "According to the Acme Supply Agreement, 70% of the order value is payable by the Due Date upon dispatch [1].",
+      "citations": [
+        {
+          "marker": 1,
+          "doc": "acme",
+          "section": "3. Prices and Invoicing"
+        }
+      ],
+      "topScore": 0.6731241540238777,
+      "model": "qwen/qwen3.8-27b",
+      "llmLatencyMs": 270.70450000000164,
+      "totalLatencyMs": 390.53800000000047,
+      "invalidMarkers": 0,
+      "missingFacts": [],
+      "correct": true,
+      "supported": true
+    },
+    {
+      "id": "acme-final-share",
+      "type": "table",
+      "question": "When is the final 10% of the order value payable?",
+      "answerable": true,
+      "abstained": false,
+      "reason": null,
+      "answer": "The final 10% of the order value is payable 30 days after delivery [3].",
+      "citations": [
+        {
+          "marker": 3,
+          "doc": "acme",
+          "section": "3. Prices and Invoicing"
+        }
+      ],
+      "topScore": 0.6679574447934026,
+      "model": "qwen/qwen3.8-27b",
+      "llmLatencyMs": 2798.7294,
+      "totalLatencyMs": 2946.3500000000004,
+      "invalidMarkers": 0,
+      "missingFacts": [],
+      "correct": true,
+      "supported": true
+    },
+    {
+      "id": "acme-dispute-window",
+      "type": "lookup",
+      "question": "How long do we have to raise a dispute about an invoice?",
+      "answerable": true,
+      "error": "LLM_UPSTREAM_ERROR (upstream 429): The answer service returned an error | {\"error\":{\"message\":\"Rate limit reached for model `qwen/qwen3.8-27b` in organization `org_01m3y7516eexrbcrzthpg3b0f0` service tier `on_demand` on input tokens per minute (ITPM): Limit 7000, Used 6175, Requested 1148. Please try again in 2.768571428s. Need more tokens? Upgrade to Dev Tier today at ht"
+    },
+    {
+      "id": "acme-nonpayment-breach",
+      "type": "paraphrase",
+      "question": "If a payment stays overdue for a long time, when does it count as a serious breach?",
+      "answerable": true,
+      "abstained": false,
+      "reason": null,
+      "answer": "Under the Acme Supply Agreement, non-payment of any Overdue Amount for more than forty-five (45) days after the Due Date is considered a material breach [3].",
+      "citations": [
+        {
+          "marker": 3,
+          "doc": "acme",
+          "section": "5. Term and Termination"
+        }
+      ],
+      "topScore": 0.6892592044892408,
+      "model": "qwen/qwen3.8-27b",
+      "llmLatencyMs": 2354.1811000000016,
+      "totalLatencyMs": 2543.5267999999996,
+      "invalidMarkers": 0,
+      "missingFacts": [],
+      "correct": true,
+      "supported": true
+    },
+    {
+      "id": "acme-start-term",
+      "type": "lookup",
+      "question": "When does the Acme agreement start and how long is the initial term?",
+      "answerable": true,
+      "error": "LLM_UPSTREAM_ERROR (upstream 429): The answer service returned an error | {\"error\":{\"message\":\"Rate limit reached for model `qwen/qwen3.8-27b` in organization `org_01m3y7516eexrbcrzthpg3b0f0` service tier `on_demand` on input tokens per minute (ITPM): Limit 7000, Used 6208, Requested 1242. Please try again in 3.857142857s. Need more tokens? Upgrade to Dev Tier today at ht"
+    },
+    {
+      "id": "acme-liability-cap",
+      "type": "paraphrase",
+      "question": "Is there a cap on how much either party can be held responsible for?",
+      "answerable": true,
+      "abstained": false,
+      "reason": null,
+      "answer": "Yes, there are caps on liability in the provided documents:\n\n* In the **acme-supply-agreement.pdf**, each Party's total liability shall not exceed the total fees paid or payable in the twelve (12) months preceding the claim [2].\n* In the **globex-services-agreement.pdf**, the Service Provider's total liability in any contract year shall not exceed the Monthly Fees paid in that contract year [3].",
+      "citations": [
+        {
+          "marker": 2,
+          "doc": "acme",
+          "section": "6. Limitation of Liability"
+        },
+        {
+          "marker": 3,
+          "doc": "globex",
+          "section": "9. Liability"
+        }
+      ],
+      "topScore": 0.6458382358165395,
+      "model": "qwen/qwen3.8-27b",
+      "llmLatencyMs": 2431.006800000003,
+      "totalLatencyMs": 2559.447400000001,
+      "invalidMarkers": 0,
+      "missingFacts": [],
+      "correct": true,
+      "supported": true
+    },
+    {
+      "id": "acme-confidentiality-survival",
+      "type": "cross_page",
+      "question": "How long do confidentiality obligations last after the supply agreement ends?",
+      "answerable": true,
+      "error": "LLM_UPSTREAM_ERROR (upstream 429): The answer service returned an error | {\"error\":{\"message\":\"Rate limit reached for model `qwen/qwen3.8-27b` in organization `org_01m3y7516eexrbcrzthpg3b0f0` service tier `on_demand` on input tokens per minute (ITPM): Limit 7000, Used 6121, Requested 1254. Please try again in 3.214285714s. Need more tokens? Upgrade to Dev Tier today at ht"
+    },
+    {
+      "id": "acme-warranty",
+      "type": "lookup",
+      "question": "What warranty period applies to the components?",
+      "answerable": true,
+      "abstained": false,
+      "reason": null,
+      "answer": "The Supplier warrants that all components shall conform to the specifications in the relevant Purchase Order for a period of twelve (12) months from delivery [1].",
+      "citations": [
+        {
+          "marker": 1,
+          "doc": "acme",
+          "section": "8. Warranties"
+        }
+      ],
+      "topScore": 0.7611481631829101,
+      "model": "qwen/qwen3.8-27b",
+      "llmLatencyMs": 3381.013300000006,
+      "totalLatencyMs": 3514.0751999999993,
+      "invalidMarkers": 0,
+      "missingFacts": [],
+      "correct": true,
+      "supported": true
+    },
+    {
+      "id": "acme-delivery",
+      "type": "lookup",
+      "question": "Where are goods delivered and how quickly?",
+      "answerable": true,
+      "error": "LLM_UPSTREAM_ERROR (upstream 429): The answer service returned an error | {\"error\":{\"message\":\"Rate limit reached for model `qwen/qwen3.8-27b` in organization `org_01m3y7516eexrbcrzthpg3b0f0` service tier `on_demand` on input tokens per minute (ITPM): Limit 7000, Used 6135, Requested 1156. Please try again in 2.494285714s. Need more tokens? Upgrade to Dev Tier today at ht"
+    },
+    {
+      "id": "acme-jurisdiction",
+      "type": "lookup",
+      "question": "Which courts have jurisdiction over disputes with Acme?",
+      "answerable": true,
+      "abstained": false,
+      "reason": null,
+      "answer": "The courts at Chennai have exclusive jurisdiction over disputes under the Master Supply Agreement with Acme Components Ltd [1].",
+      "citations": [
+        {
+          "marker": 1,
+          "doc": "acme",
+          "section": "7. Governing Law"
+        }
+      ],
+      "topScore": 0.7350864787374025,
+      "model": "qwen/qwen3.8-27b",
+      "llmLatencyMs": 224.90430000000197,
+      "totalLatencyMs": 357.6645999999964,
+      "invalidMarkers": 0,
+      "missingFacts": [],
+      "correct": true,
+      "supported": true
+    },
+    {
+      "id": "acme-force-majeure-payment",
+      "type": "paraphrase",
+      "question": "Does a storm or other event outside our control excuse late payment?",
+      "answerable": true,
+      "error": "LLM_UPSTREAM_ERROR (upstream 429): The answer service returned an error | {\"error\":{\"message\":\"Rate limit reached for model `qwen/qwen3.8-27b` in organization `org_01m3y7516eexrbcrzthpg3b0f0` service tier `on_demand` on input tokens per minute (ITPM): Limit 7000, Used 6175, Requested 1140. Please try again in 2.699999999s. Need more tokens? Upgrade to Dev Tier today at ht"
+    },
+    {
+      "id": "acme-disputed-late-fee",
+      "type": "cross_page",
+      "question": "Does the late fee apply to invoices we are disputing?",
+      "answerable": true,
+      "abstained": false,
+      "reason": null,
+      "answer": "Yes, the late fee does not apply to amounts disputed in good faith [1].",
+      "citations": [
+        {
+          "marker": 1,
+          "doc": "acme",
+          "section": "4. Payment Terms"
+        }
+      ],
+      "topScore": 0.7493400874113777,
+      "model": "qwen/qwen3.8-27b",
+      "llmLatencyMs": 3327.991399999999,
+      "totalLatencyMs": 3445.613999999994,
+      "invalidMarkers": 0,
+      "missingFacts": [],
+      "correct": true,
+      "supported": true
+    },
+    {
+      "id": "globex-monthly-fee",
+      "type": "lookup",
+      "question": "What is the monthly fee for Globex's services?",
+      "answerable": true,
+      "error": "LLM_UPSTREAM_ERROR (upstream 429): The answer service returned an error | {\"error\":{\"message\":\"Rate limit reached for model `qwen/qwen3.8-27b` in organization `org_01m3y7516eexrbcrzthpg3b0f0` service tier `on_demand` on input tokens per minute (ITPM): Limit 7000, Used 6125, Requested 1042. Please try again in 1.431428571s. Need more tokens? Upgrade to Dev Tier today at ht"
+    },
+    {
+      "id": "globex-payment-period",
+      "type": "lookup",
+      "question": "How many days does the client have to pay a Globex invoice?",
+      "answerable": true,
+      "abstained": false,
+      "reason": null,
+      "answer": "The client has forty-five (45) days from the date of receipt of a valid invoice to pay [1].",
+      "citations": [
+        {
+          "marker": 1,
+          "doc": "globex",
+          "section": "1. Definitions"
+        }
+      ],
+      "topScore": 0.7964604022228832,
+      "model": "qwen/qwen3.8-27b",
+      "llmLatencyMs": 2356.4602999999915,
+      "totalLatencyMs": 2487.4414999999863,
+      "invalidMarkers": 0,
+      "missingFacts": [],
+      "correct": true,
+      "supported": true
+    },
+    {
+      "id": "globex-late-interest",
+      "type": "lookup",
+      "question": "What interest rate applies to late amounts under the services agreement?",
+      "answerable": true,
+      "error": "LLM_UPSTREAM_ERROR (upstream 429): The answer service returned an error | {\"error\":{\"message\":\"Rate limit reached for model `qwen/qwen3.8-27b` in organization `org_01m3y7516eexrbcrzthpg3b0f0` service tier `on_demand` on input tokens per minute (ITPM): Limit 7000, Used 6184, Requested 1230. Please try again in 3.548571428s. Need more tokens? Upgrade to Dev Tier today at ht"
+    },
+    {
+      "id": "globex-interest-cap",
+      "type": "paraphrase",
+      "question": "Is there a maximum on interest charged for late payments to Globex?",
+      "answerable": true,
+      "abstained": false,
+      "reason": null,
+      "answer": "Yes, total interest on Late Amounts shall not exceed eighteen percent (18%) per annum [1].",
+      "citations": [
+        {
+          "marker": 1,
+          "doc": "globex",
+          "section": "3. Fees and Payment"
+        }
+      ],
+      "topScore": 0.7649608622503055,
+      "model": "qwen/qwen3.8-27b",
+      "llmLatencyMs": 1335.149900000004,
+      "totalLatencyMs": 1437.8176999999996,
+      "invalidMarkers": 0,
+      "missingFacts": [],
+      "correct": true,
+      "supported": true
+    },
+    {
+      "id": "globex-convenience-notice",
+      "type": "lookup",
+      "question": "How much notice is needed to terminate the Globex agreement for convenience?",
+      "answerable": true,
+      "error": "LLM_UPSTREAM_ERROR (upstream 429): The answer service returned an error | {\"error\":{\"message\":\"Rate limit reached for model `qwen/qwen3.8-27b` in organization `org_01m3y7516eexrbcrzthpg3b0f0` service tier `on_demand` on input tokens per minute (ITPM): Limit 7000, Used 6214, Requested 1065. Please try again in 2.391428571s. Need more tokens? Upgrade to Dev Tier today at ht"
+    },
+    {
+      "id": "globex-onboarding-fee",
+      "type": "table",
+      "question": "What is the one-time onboarding fee?",
+      "answerable": true,
+      "abstained": false,
+      "reason": null,
+      "answer": "The one-time onboarding fee is INR 1,20,000 [1].",
+      "citations": [
+        {
+          "marker": 1,
+          "doc": "globex",
+          "section": "3. Fees and Payment"
+        }
+      ],
+      "topScore": 0.6329381654542141,
+      "model": "qwen/qwen3.8-27b",
+      "llmLatencyMs": 3326.9260000000068,
+      "totalLatencyMs": 3536.251999999993,
+      "invalidMarkers": 0,
+      "missingFacts": [],
+      "correct": true,
+      "supported": true
+    },
+    {
+      "id": "globex-termination-cost",
+      "type": "lookup",
+      "question": "What does it cost to terminate the services agreement early?",
+      "answerable": true,
+      "error": "LLM_UPSTREAM_ERROR (upstream 429): The answer service returned an error | {\"error\":{\"message\":\"Rate limit reached for model `qwen/qwen3.8-27b` in organization `org_01m3y7516eexrbcrzthpg3b0f0` service tier `on_demand` on input tokens per minute (ITPM): Limit 7000, Used 6092, Requested 1234. Please try again in 2.794285714s. Need more tokens? Upgrade to Dev Tier today at ht"
+    },
+    {
+      "id": "globex-price-increase",
+      "type": "paraphrase",
+      "question": "Can Globex raise its prices?",
+      "answerable": true,
+      "abstained": false,
+      "reason": null,
+      "answer": "Yes, Globex can increase the Monthly Fee once in each contract year by no more than the change in the Consumer Price Index, provided it gives ninety (90) days' written notice [2].",
+      "citations": [
+        {
+          "marker": 2,
+          "doc": "globex",
+          "section": "3. Fees and Payment"
+        }
+      ],
+      "topScore": 0.6540458820976335,
+      "model": "qwen/qwen3.8-27b",
+      "llmLatencyMs": 1355.0463000000018,
+      "totalLatencyMs": 1481.4992999999959,
+      "invalidMarkers": 0,
+      "missingFacts": [],
+      "correct": true,
+      "supported": true
+    },
+    {
+      "id": "globex-service-credit",
+      "type": "paraphrase",
+      "question": "What happens if the service provider's collections accuracy drops?",
+      "answerable": true,
+      "error": "LLM_UPSTREAM_ERROR (upstream 429): The answer service returned an error | {\"error\":{\"message\":\"Rate limit reached for model `qwen/qwen3.8-27b` in organization `org_01m3y7516eexrbcrzthpg3b0f0` service tier `on_demand` on input tokens per minute (ITPM): Limit 7000, Used 6129, Requested 1108. Please try again in 2.031428571s. Need more tokens? Upgrade to Dev Tier today at ht"
+    },
+    {
+      "id": "globex-confidentiality",
+      "type": "lookup",
+      "question": "How long must Globex keep our information confidential?",
+      "answerable": true,
+      "abstained": false,
+      "reason": null,
+      "answer": "Under the Globex Services Agreement, each party must keep the other party's Confidential Information secret for the term of the Agreement and five (5) years after its termination [1].",
+      "citations": [
+        {
+          "marker": 1,
+          "doc": "globex",
+          "section": "5. Confidentiality"
+        }
+      ],
+      "topScore": 0.8113633377308817,
+      "model": "qwen/qwen3.8-27b",
+      "llmLatencyMs": 2373.6438999999955,
+      "totalLatencyMs": 2600.5262000000075,
+      "invalidMarkers": 0,
+      "missingFacts": [],
+      "correct": true,
+      "supported": true
+    },
+    {
+      "id": "globex-data-law",
+      "type": "lookup",
+      "question": "Which data protection law must Globex follow?",
+      "answerable": true,
+      "error": "LLM_UPSTREAM_ERROR (upstream 429): The answer service returned an error | {\"error\":{\"message\":\"Rate limit reached for model `qwen/qwen3.8-27b` in organization `org_01m3y7516eexrbcrzthpg3b0f0` service tier `on_demand` on input tokens per minute (ITPM): Limit 7000, Used 6130, Requested 999. Please try again in 1.105714285s. Need more tokens? Upgrade to Dev Tier today at htt"
+    },
+    {
+      "id": "globex-term",
+      "type": "lookup",
+      "question": "What is the term of the services agreement?",
+      "answerable": true,
+      "abstained": true,
+      "reason": "model_insufficient_context",
+      "answer": "I couldn't find an answer to that in your documents.",
+      "citations": [],
+      "topScore": 0.7337264658428397,
+      "model": "qwen/qwen3.8-27b",
+      "llmLatencyMs": 208.70230000000447,
+      "totalLatencyMs": 353.03310000000056,
+      "invalidMarkers": 0
+    },
+    {
+      "id": "globex-suspension",
+      "type": "paraphrase",
+      "question": "Can Globex stop working if we don't pay?",
+      "answerable": true,
+      "error": "LLM_UPSTREAM_ERROR (upstream 429): The answer service returned an error | {\"error\":{\"message\":\"Rate limit reached for model `qwen/qwen3.8-27b` in organization `org_01m3y7516eexrbcrzthpg3b0f0` service tier `on_demand` on input tokens per minute (ITPM): Limit 7000, Used 6164, Requested 1052. Please try again in 1.851428571s. Need more tokens? Upgrade to Dev Tier today at ht"
+    },
+    {
+      "id": "globex-liability-cap",
+      "type": "lookup",
+      "question": "What is the limit on Globex's liability?",
+      "answerable": true,
+      "abstained": false,
+      "reason": null,
+      "answer": "Globex's total liability in any contract year shall not exceed the Monthly Fees paid in that contract year [1].",
+      "citations": [
+        {
+          "marker": 1,
+          "doc": "globex",
+          "section": "9. Liability"
+        }
+      ],
+      "topScore": 0.7558386311915853,
+      "model": "qwen/qwen3.8-27b",
+      "llmLatencyMs": 1299.9087,
+      "totalLatencyMs": 1423.741200000004,
+      "invalidMarkers": 0,
+      "missingFacts": [],
+      "correct": true,
+      "supported": true
+    },
+    {
+      "id": "globex-location",
+      "type": "lookup",
+      "question": "Where does Globex provide the services from?",
+      "answerable": true,
+      "error": "LLM_UPSTREAM_ERROR (upstream 429): The answer service returned an error | {\"error\":{\"message\":\"Rate limit reached for model `qwen/qwen3.8-27b` in organization `org_01m3y7516eexrbcrzthpg3b0f0` service tier `on_demand` on input tokens per minute (ITPM): Limit 7000, Used 6163, Requested 852. Please try again in 128.571428ms. Need more tokens? Upgrade to Dev Tier today at htt"
+    },
+    {
+      "id": "multi-late-interest",
+      "type": "multi_doc",
+      "question": "What interest or late fees apply to overdue payments?",
+      "answerable": true,
+      "abstained": false,
+      "reason": null,
+      "answer": "Under the Acme Supply Agreement, any Overdue Amount accrues a late fee of one and a half percent (1.5%) per month, calculated daily from the Due Date until the date of actual payment [1].\n\nUnder the Globex Services Agreement, Late Amounts bear interest at two percent (2%) per month, provided that total interest shall not exceed eighteen percent (18%) per annum [2].",
+      "citations": [
+        {
+          "marker": 1,
+          "doc": "acme",
+          "section": "4. Payment Terms"
+        },
+        {
+          "marker": 2,
+          "doc": "globex",
+          "section": "3. Fees and Payment"
+        }
+      ],
+      "topScore": 0.7252106561880453,
+      "model": "qwen/qwen3.8-27b",
+      "llmLatencyMs": 2470.200499999977,
+      "totalLatencyMs": 2671.3299000000115,
+      "invalidMarkers": 0,
+      "missingFacts": [],
+      "correct": true,
+      "supported": true
+    },
+    {
+      "id": "multi-convenience-notice",
+      "type": "multi_doc",
+      "question": "What notice period applies to terminating each agreement for convenience?",
+      "answerable": true,
+      "error": "LLM_UPSTREAM_ERROR (upstream 429): The answer service returned an error | {\"error\":{\"message\":\"Rate limit reached for model `qwen/qwen3.8-27b` in organization `org_01m3y7516eexrbcrzthpg3b0f0` service tier `on_demand` on input tokens per minute (ITPM): Limit 7000, Used 6187, Requested 1131. Please try again in 2.725714285s. Need more tokens? Upgrade to Dev Tier today at ht"
+    },
+    {
+      "id": "multi-jurisdiction",
+      "type": "multi_doc",
+      "question": "Which courts have jurisdiction under our contracts?",
+      "answerable": true,
+      "abstained": false,
+      "reason": null,
+      "answer": "Under the Globex Services Agreement, the courts at Bengaluru have exclusive jurisdiction [1]. Under the Acme Supply Agreement, the courts at Chennai have exclusive jurisdiction [2].",
+      "citations": [
+        {
+          "marker": 1,
+          "doc": "globex",
+          "section": "6. Governing Law"
+        },
+        {
+          "marker": 2,
+          "doc": "acme",
+          "section": "7. Governing Law"
+        }
+      ],
+      "topScore": 0.7128865884136873,
+      "model": "qwen/qwen3.8-27b",
+      "llmLatencyMs": 246.75779999999213,
+      "totalLatencyMs": 342.4009000000078,
+      "invalidMarkers": 0,
+      "missingFacts": [],
+      "correct": true,
+      "supported": true
+    },
+    {
+      "id": "multi-confidentiality",
+      "type": "multi_doc",
+      "question": "How long do confidentiality obligations survive termination?",
+      "answerable": true,
+      "error": "LLM_UPSTREAM_ERROR (upstream 429): The answer service returned an error | {\"error\":{\"message\":\"Rate limit reached for model `qwen/qwen3.8-27b` in organization `org_01m3y7516eexrbcrzthpg3b0f0` service tier `on_demand` on input tokens per minute (ITPM): Limit 7000, Used 6080, Requested 1266. Please try again in 2.965714285s. Need more tokens? Upgrade to Dev Tier today at ht"
+    },
+    {
+      "id": "none-wifi",
+      "type": "unanswerable",
+      "question": "What is the office Wi-Fi password?",
+      "answerable": false,
+      "abstained": true,
+      "reason": "below_score_floor",
+      "answer": "I couldn't find an answer to that in your documents.",
+      "citations": [],
+      "topScore": 0.48082506542355974,
+      "model": null,
+      "llmLatencyMs": null,
+      "totalLatencyMs": 141.69010000000708,
+      "invalidMarkers": 0
+    },
+    {
+      "id": "none-ceo",
+      "type": "unanswerable",
+      "question": "Who is the CEO of Brightline Retail?",
+      "answerable": false,
+      "abstained": true,
+      "reason": "model_insufficient_context",
+      "answer": "I couldn't find an answer to that in your documents.",
+      "citations": [],
+      "topScore": 0.6139495142668207,
+      "model": "qwen/qwen3.8-27b",
+      "llmLatencyMs": 196.52410000000964,
+      "totalLatencyMs": 321.23809999998775,
+      "invalidMarkers": 0
+    },
+    {
+      "id": "none-late-delivery-penalty",
+      "type": "unanswerable",
+      "question": "What is the penalty for late delivery of components?",
+      "answerable": false,
+      "error": "LLM_UPSTREAM_ERROR (upstream 429): The answer service returned an error | {\"error\":{\"message\":\"Rate limit reached for model `qwen/qwen3.8-27b` in organization `org_01m3y7516eexrbcrzthpg3b0f0` service tier `on_demand` on input tokens per minute (ITPM): Limit 7000, Used 5829, Requested 1268. Please try again in 831.428571ms. Need more tokens? Upgrade to Dev Tier today at ht"
+    },
+    {
+      "id": "none-non-compete",
+      "type": "unanswerable",
+      "question": "Does the Acme agreement include a non-compete clause?",
+      "answerable": false,
+      "abstained": true,
+      "reason": "model_insufficient_context",
+      "answer": "I couldn't find an answer to that in your documents.",
+      "citations": [],
+      "topScore": 0.7082770292924064,
+      "model": "qwen/qwen3.8-27b",
+      "llmLatencyMs": 217.60839999999735,
+      "totalLatencyMs": 321.1443000000145,
+      "invalidMarkers": 0
+    },
+    {
+      "id": "none-insurance",
+      "type": "unanswerable",
+      "question": "What insurance coverage must the supplier maintain?",
+      "answerable": false,
+      "error": "LLM_UPSTREAM_ERROR (upstream 429): The answer service returned an error | {\"error\":{\"message\":\"Rate limit reached for model `qwen/qwen3.8-27b` in organization `org_01m3y7516eexrbcrzthpg3b0f0` service tier `on_demand` on input tokens per minute (ITPM): Limit 7000, Used 6069, Requested 1165. Please try again in 2.005714285s. Need more tokens? Upgrade to Dev Tier today at ht"
+    },
+    {
+      "id": "none-bank-account",
+      "type": "unanswerable",
+      "question": "What is Globex's bank account number for payments?",
+      "answerable": false,
+      "abstained": true,
+      "reason": "model_insufficient_context",
+      "answer": "I couldn't find an answer to that in your documents.",
+      "citations": [],
+      "topScore": 0.6798233222540193,
+      "model": "qwen/qwen3.8-27b",
+      "llmLatencyMs": 213.93489999999292,
+      "totalLatencyMs": 396.0364999999874,
+      "invalidMarkers": 0
+    },
+    {
+      "id": "none-headcount",
+      "type": "unanswerable",
+      "question": "How many employees does Globex have?",
+      "answerable": false,
+      "error": "LLM_UPSTREAM_ERROR (upstream 429): The answer service returned an error | {\"error\":{\"message\":\"Rate limit reached for model `qwen/qwen3.8-27b` in organization `org_01m3y7516eexrbcrzthpg3b0f0` service tier `on_demand` on input tokens per minute (ITPM): Limit 7000, Used 6209, Requested 1036. Please try again in 2.1s. Need more tokens? Upgrade to Dev Tier today at https://co"
+    },
+    {
+      "id": "none-assignment",
+      "type": "unanswerable",
+      "question": "Can either party assign the agreement to a third party?",
+      "answerable": false,
+      "abstained": true,
+      "reason": "model_insufficient_context",
+      "answer": "I couldn't find an answer to that in your documents.",
+      "citations": [],
+      "topScore": 0.6613029645320407,
+      "model": "qwen/qwen3.8-27b",
+      "llmLatencyMs": 2299.3810999999987,
+      "totalLatencyMs": 2411.121600000013,
+      "invalidMarkers": 0
+    },
+    {
+      "id": "none-unit-price",
+      "type": "unanswerable",
+      "question": "What is the price per unit for the components?",
+      "answerable": false,
+      "error": "LLM_UPSTREAM_ERROR (upstream 429): The answer service returned an error | {\"error\":{\"message\":\"Rate limit reached for model `qwen/qwen3.8-27b` in organization `org_01m3y7516eexrbcrzthpg3b0f0` service tier `on_demand` on input tokens per minute (ITPM): Limit 7000, Used 6214, Requested 1006. Please try again in 1.885714285s. Need more tokens? Upgrade to Dev Tier today at ht"
+    },
+    {
+      "id": "none-weather",
+      "type": "unanswerable",
+      "question": "What is the weather in Chennai today?",
+      "answerable": false,
+      "abstained": true,
+      "reason": "below_score_floor",
+      "answer": "I couldn't find an answer to that in your documents.",
+      "citations": [],
+      "topScore": 0.4797134268540113,
+      "model": null,
+      "llmLatencyMs": null,
+      "totalLatencyMs": 78.02650000000722,
+      "invalidMarkers": 0
+    }
+  ]
+}

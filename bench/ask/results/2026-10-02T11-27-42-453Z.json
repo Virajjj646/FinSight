@@ -1,0 +1,89 @@
+{
+  "runAt": "2026-10-02T11:27:42.453Z",
+  "config": {
+    "gold": "bench/retrieval/gold.v2.jsonl",
+    "corpus": "bench/retrieval/corpus.v1.json",
+    "model": "meta-llama/Llama-3.3-70B-Instruct",
+    "k": 5,
+    "minScore": 0.55,
+    "chunkCounts": {
+      "acme": 12,
+      "globex": 11
+    },
+    "only": [
+      "acme-late-fee",
+      "multi-jurisdiction",
+      "none-late-delivery-penalty"
+    ]
+  },
+  "questions": [
+    {
+      "id": "acme-late-fee",
+      "type": "lookup",
+      "question": "What is the late fee on overdue amounts under the Acme agreement?",
+      "answerable": true,
+      "abstained": false,
+      "reason": null,
+      "answer": "The late fee on overdue amounts is one and a half percent (1.5%) per month, calculated daily from the Due Date until the date of actual payment [1].",
+      "citations": [
+        {
+          "marker": 1,
+          "doc": "acme",
+          "section": "4. Payment Terms"
+        }
+      ],
+      "topScore": 0.8332040111532422,
+      "model": "meta-llama/Llama-3.3-70B-Instruct-Turbo",
+      "llmLatencyMs": 1424.2757000000001,
+      "totalLatencyMs": 1575.3217999999997,
+      "invalidMarkers": 0,
+      "missingFacts": [],
+      "correct": true,
+      "supported": true
+    },
+    {
+      "id": "multi-jurisdiction",
+      "type": "multi_doc",
+      "question": "Which courts have jurisdiction under our contracts?",
+      "answerable": true,
+      "abstained": false,
+      "reason": null,
+      "answer": "The courts at Bengaluru have exclusive jurisdiction under the Services Agreement between Globex Receivables LLP and Brightline [1], and the courts at Chennai have exclusive jurisdiction under the Master Supply Agreement between Acme Components Ltd [2].",
+      "citations": [
+        {
+          "marker": 1,
+          "doc": "globex",
+          "section": "6. Governing Law"
+        },
+        {
+          "marker": 2,
+          "doc": "acme",
+          "section": "7. Governing Law"
+        }
+      ],
+      "topScore": 0.7128865884136873,
+      "model": "meta-llama/Llama-3.3-70B-Instruct-Turbo",
+      "llmLatencyMs": 1021.1000000000004,
+      "totalLatencyMs": 1097.3746999999985,
+      "invalidMarkers": 0,
+      "missingFacts": [],
+      "correct": true,
+      "supported": true
+    },
+    {
+      "id": "none-late-delivery-penalty",
+      "type": "unanswerable",
+      "question": "What is the penalty for late delivery of components?",
+      "answerable": false,
+      "abstained": true,
+      "reason": "model_insufficient_context",
+      "answer": "I couldn't find an answer to that in your documents.",
+      "citations": [],
+      "topScore": 0.7393709641508505,
+      "model": "meta-llama/Llama-3.3-70B-Instruct-Turbo",
+      "llmLatencyMs": 825.8960999999999,
+      "totalLatencyMs": 907.3657000000003,
+      "invalidMarkers": 0
+    }
+  ]
+}

@@ -5,6 +5,7 @@ import authRoutes from "./modules/auth/auth.routes.js";
 import accountRoutes from "./modules/accounts/accounts.routes.js";
 import documentRoutes from "./modules/documents/documents.routes.js"
 import adminRoutes from "./modules/admin/admin.routes.js";
+import askRoutes from './modules/ask/ask.routes.js'
 import { errorHandler } from "./middleware/errorHandler.js";
 import { AppError } from "./lib/AppError.js";
 import { requestLogger } from "./middleware/requestLogger.js";
@@ -27,6 +28,7 @@ app.use("/api/invoices", invoiceRoutes);
 app.use("/api/accounts", accountRoutes);
 app.use('/api/documents', documentRoutes);
 app.use("/api/admin", adminRoutes);
+app.use("/api/ask" , askRoutes);
 
 app.get("/health", (req, res) => {
   if (isShuttingDown()) {
