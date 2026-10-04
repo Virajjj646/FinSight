@@ -244,8 +244,9 @@ Copy-Item .env.example .env   # then fill in the values
 | `ADMIN_TOKEN` | no | At least 32 characters. If empty, `/api/admin/*` returns 404 |
 | `FINSIGHT_LLM_BASE_URL` | for /ask | Base URL of an OpenAI-compatible API (the client appends `/chat/completions`) |
 | `FINSIGHT_LLM_API_KEY` | for /ask | Bearer token |
-| `FINSIGHT_LLM_MODEL` | no | Defaults to `llama-3.3-70b-versatile` |
+| `FINSIGHT_LLM_MODEL` | in production | Defaults to `llama-3.3-70b-versatile`, which is retired on Groq. Set it explicitly (see [Deployment](#deployment)) |
 | `CORS_ORIGINS` | no | Comma-separated browser origins allowed to call the API (exact match). Empty means none |
+| `RUN_WORKER` | no | `true` also runs the invoice scheduler and the invoice and document workers in the API process. Empty or `false` means API only |
 | `RATE_LIMIT_ASK_PER_MIN` | no | `/api/ask` requests per user per minute. Default 20 |
 | `RATE_LIMIT_LOGIN_PER_15MIN` | no | Login attempts per IP and email per 15 minutes. Default 10 |
 | `RATE_LIMIT_REGISTER_PER_HOUR` | no | Registrations per IP per hour. Default 5 |
@@ -492,6 +493,7 @@ Requirements:
 | `scripts/chunk-pdf.js` | `node scripts/chunk-pdf.js <pdf>` prints the chunks with pages, token counts and sections |
 | `scripts/bench-retrieval.js` | Retrieval benchmark: hit@k, MRR, score-separation sweep, latency, misses |
 | `scripts/bench-ask.js` | End-to-end /ask benchmark: correctness, citation support, abstention by gate, latency |
+| `scripts/warm-model.js` | `npm run warm-model` downloads the embedding model and tokenizer into the cache (deployment build step) |
 | `scripts/check-test-db.js` | Reports the migration count, invoice sequence schema and ledger triggers on `DATABASE_URL_TEST` |
 
 ## Project structure
@@ -520,7 +522,7 @@ test/
   admin/ ask/ auth/ documents/ ingest/ invoices/ ledger/ lib/ llm/ members/ middleware/ retrieval/ schema/ tenant-isolation/
   helpers/         api, db, fixtures, server, teardown
   fixtures/documents/   acme-supply-agreement.pdf, globex-services-agreement.pdf, scanned-supply-agreement.pdf
-scripts/           ask, retrieve, extract-pdf, chunk-pdf, bench-retrieval, bench-ask, check-test-db
+scripts/           ask, retrieve, extract-pdf, chunk-pdf, bench-retrieval, bench-ask, check-test-db, warm-model
 bench/
   lib/corpus.js
   retrieval/       corpus.v1.json, gold.v1.jsonl, gold.v2.jsonl, results/
@@ -530,9 +532,36 @@ drizzle/           0000–0020 migrations (0007 zero-sum trigger, 0013 invoice s
                    0020 invoices.issue_journal_entry_id)
 ```
 
+## Deployment
+
+The target is a single free-tier stack: Render (API + workers), Render Key Value (Redis) and Neon (Postgres).
+
+**Render web service**
+
+- Build command: `npm ci && npm run warm-model`. `warm-model` downloads the embedding model and tokenizer at build time, so the first upload or `/ask` doesn't pay for it. It needs no app env vars.
+- Start command: `npm start`.
+- Node 22 (pinned through `engines` in `package.json`).
+- Set `RUN_WORKER=true` so the API process also runs the invoice scheduler and the invoice and document workers. Without it, nothing processes jobs unless `src/worker.js` runs as a separate service.
+- `app.js` sets `trust proxy` to `1` (one hop, Render's proxy). The auth rate limiters key on `req.ip`, so without it every client would share the proxy's IP and one bucket.
+
+**Render Key Value (Redis):** set the maxmemory policy to `noeviction`. BullMQ requires it, because evicted keys would silently drop jobs.
+
+**Neon (Postgres):** use the pooled connection string for `DATABASE_URL`. Run migrations from your machine against the direct (non-pooled) URL:
+
+```powershell
+$env:DATABASE_URL = "<neon direct url>"; npm run db:migrate
+```
+
+**Required env vars in production:** `DATABASE_URL`, `REDIS_URL`, `JWT_SECRET`, `PORT` (Render sets it), `CORS_ORIGINS`, `RUN_WORKER=true`, `FINSIGHT_LLM_BASE_URL`, `FINSIGHT_LLM_API_KEY` and **`FINSIGHT_LLM_MODEL`**. The `FINSIGHT_LLM_MODEL` default in `env.js` (`llama-3.3-70b-versatile`) is retired on Groq, so set it explicitly.
+
+**Caveats**
+
+- Free-tier services spin down when idle. The midnight `markOverdue` job doesn't run while the service is asleep and runs when it next wakes. It is delayed, not lost.
+- Free instances have 512 MB of RAM. The fp32 embedding model, plus the workers running in the same process, takes up much of that, so large uploads or concurrent ingestion can hit the limit.
+
 ## Known limitations
 
-- Rate limits are fixed-window, so a burst at a window boundary can reach twice the limit. `req.ip` is the socket address: behind a reverse proxy, set Express `trust proxy` or every client shares one login and register bucket.
+- Rate limits are fixed-window, so a burst at a window boundary can reach twice the limit. `req.ip` comes from `X-Forwarded-For` with `trust proxy` set to one hop. If the deployment has a different number of proxies, adjust that setting in `app.js`.
 - Vector search has no ANN index (an exact scan, by design for now).
 - Scanned PDFs are rejected. OCR is not implemented.
 - There is no endpoint to reverse journal entries. The schema has `reversed_by_entry_id` and the trigger allows setting it once, but no code path sets it.

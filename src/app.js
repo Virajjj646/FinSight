@@ -17,6 +17,8 @@ import { env } from "./config/env.js";
 const app = express();
 
 app.disable("x-powered-by");
+// Behind Render's proxy: without this, req.ip (the auth rate-limit key) is the proxy's IP and every client shares one bucket.
+app.set("trust proxy", 1);
 app.use(requestLogger);
 app.use(securityHeaders);
 app.use(cors({ origins: env.CORS_ORIGINS }));

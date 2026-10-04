@@ -36,6 +36,13 @@ const envSchema = z.object({
   RATE_LIMIT_MEMBER_CREATE_PER_HOUR: z.coerce.number().int().positive().default(20),
   // LLM calls per tenant per UTC day. Abstentions before the LLM don't count.
   LLM_DAILY_BUDGET_PER_TENANT: z.coerce.number().int().positive().default(200),
+  // When true, the API process also runs the BullMQ invoice scheduler and the
+  // invoice/document workers (single-instance free hosting). src/worker.js
+  // remains the standalone entry point. Empty (as in .env.example) means false.
+  RUN_WORKER: z.preprocess(
+    (v) => (v === "" ? undefined : v),
+    z.enum(["true", "false"]).default("false").transform((v) => v === "true")
+  ),
 });
 
 const parsed = envSchema.safeParse(process.env);
